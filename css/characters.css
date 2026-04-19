@@ -1,0 +1,376 @@
+/* =========================================
+   11. Character Page Specific Styles (角色列表页)
+   ========================================= */
+.char-page-header,
+.char-filter-container,
+.card-grid {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.char-page-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 10px;
+}
+
+.char-page-header h2 {
+    font-size: 2.5em;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+}
+
+.char-page-header h2 span {
+    color: #ffcc00;
+}
+
+.char-page-header p {
+    color: #cfd6dc;
+    font-size: 1.1em;
+    margin: 0;
+    font-weight: 500;
+}
+
+.char-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 40px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    color: #ffffff;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.filter-group input,
+.filter-group select,
+.elem-btn {
+    height: 44px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.filter-group input,
+.filter-group select {
+    background-color: #2b2f36;
+    border: 1px solid #3d444d;
+    color: #cfd6dc;
+    padding: 0 15px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    outline: none;
+    transition: border-color 0.3s;
+    font-family: inherit;
+}
+
+.filter-group input::placeholder {
+    color: #7b848d;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    border-color: #ffcc00;
+}
+
+.element-buttons {
+    display: flex;
+    gap: 6px;
+    height: 44px;
+}
+
+.elem-btn {
+    background-color: #2b2f36;
+    border: 1px solid #3d444d;
+    color: #9da5ad;
+    padding: 0 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+}
+
+.elem-btn img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    display: block;
+}
+
+.elem-btn:hover {
+    background-color: #3d444d;
+    color: #ffffff;
+}
+
+.elem-btn.active {
+    background-color: #4a5462;
+    border-color: #ffcc00;
+    color: #ffffff;
+}
+
+/* =========================================
+   12. Character Detail Page (完美对齐 & 紧凑版)
+   ========================================= */
+.char-detail-page {
+    max-width: 1100px; 
+    margin: 0 auto;
+    padding-bottom: 50px;
+}
+
+.char-detail-content {
+    display: flex;
+    gap: 40px;
+    align-items: stretch; /* 🌟 关键魔法：强制左边(图片)和右边(数据)高度完全一样！ */
+}
+
+/* 左侧：图片框 */
+.char-detail-left {
+    width: 35%; 
+}
+
+.char-arch-bg {
+    height: 100%; /* 🌟 紧紧跟随右边数据框的总高度 */
+    background: linear-gradient(180deg, #3d4255 0%, #1e212b 100%);
+    border-top-left-radius: 200px;
+    border-top-right-radius: 200px;
+    border-bottom-left-radius: 12px; /* 和右边的圆角呼应 */
+    border-bottom-right-radius: 12px;
+    padding: 30px 20px 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* 🌟 让图片老老实实沉在最底下 */
+    position: relative;
+    overflow: hidden;
+}
+
+.char-arch-bg img {
+    width: 100%; 
+    height: 100%; /* 填满高度 */
+    object-fit: cover;
+    object-position: top center;
+    margin-bottom: 0; /* 删掉之前的负边距，因为已经用flex-end贴底了 */
+}
+
+/* 右侧：数据框 (整体变紧凑) */
+.char-detail-right {
+    width: 65%; 
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 🌟 缩小各大板块之间的间距 */
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between; 
+    align-items: flex-start; 
+    margin-bottom: 0; 
+}
+
+.detail-title-box h1 {
+    font-size: 2.2em;
+    margin: 0; /* 🌟 删掉了底边距，因为下面没副标题了 */
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1;
+}
+
+.detail-stars {
+    color: #ffcc00;
+    font-size: 0.6em;
+}
+
+.detail-tags {
+    display: flex;
+    gap: 10px;
+    align-items: center; 
+}
+
+.tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 600;
+    border: 1px solid #3d444d;
+    background-color: transparent; 
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 6px; 
+}
+
+.tag-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
+}
+
+.tag-weapon { border-color: #e0e0e0; color: #e0e0e0; }
+.tag-element { border-color: #48c78e; color: #48c78e; }
+
+/* 压缩等级滑块区 */
+.detail-level-section {
+    padding: 0; /* 🌟 彻底去掉 padding */
+}
+
+.level-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 5px; /* 🌟 缩小 */
+    color: #e0e0e0;
+}
+
+.level-max {
+    font-size: 1.1em;
+}
+
+.level-slider {
+    width: 100%;
+    appearance: none;
+    height: 6px;
+    background: #ffcc00;
+    border-radius: 3px;
+    outline: none;
+}
+
+.level-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    border: 2px solid #ffcc00;
+}
+
+/* 压缩材料区 */
+.detail-materials-section h3 {
+    font-size: 0.9em; 
+    color: #ffffff;
+    margin: 0 0 8px 0; /* 🌟 缩小 */
+}
+
+.materials-grid {
+    display: flex;
+    gap: 8px; /* 🌟 缩小 */
+}
+
+.mat-box {
+    background-color: #2b2f36; 
+    border-radius: 8px;
+    padding: 6px; 
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    border: none; 
+}
+
+.mat-count {
+    color: #8c9eff;
+    font-weight: bold;
+    font-size: 0.8em; 
+    margin-bottom: 3px;
+}
+
+.mat-icon-bg {
+    width: 35px; 
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3px; /* 🌟 缩小 */
+}
+
+.mat-icon-bg img {
+    width: 28px; /* 🌟 稍微缩小图片适配紧凑度 */
+    height: 28px;
+    object-fit: contain;
+}
+
+.mat-name {
+    font-size: 0.7em; 
+    text-align: center;
+    color: #cfd6dc;
+    line-height: 1.2;
+}
+
+/* 压缩数值面板 */
+.detail-stats-section {
+    background-color: #2b2f36; 
+    border-radius: 10px; 
+    padding: 6px; /* 🌟 缩小 */
+    margin-top: 0; 
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 15px; /* 🌟 大幅缩小每一行的留白，变紧凑 */
+    border-radius: 6px; 
+    margin-bottom: 1px; 
+}
+
+.stat-row:nth-child(odd) {
+    background-color: #353a43; 
+}
+
+.stat-label {
+    color: #cfd6dc;
+    font-weight: 500;
+    font-size: 0.85em; 
+}
+
+.stat-value {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 0.9em; 
+}
+
+/* =========================================
+   🌟 全宽角色档案/故事区域 (极简纯色版)
+   ========================================= */
+.detail-lore-section {
+    margin-top: 30px; 
+    background-color: #1c2025; 
+    border-radius: 12px;
+    padding: 30px 40px; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
+}
+
+.detail-lore-section h3 {
+    color: #ffffff;
+    font-size: 1.2em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+.detail-lore-section p {
+    margin: 0;
+    font-size: 0.95em; 
+    color: #cfd6dc;
+    line-height: 1.8; 
+    text-align: justify; 
+}

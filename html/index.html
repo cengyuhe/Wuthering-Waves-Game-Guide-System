@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wuthering Waves Guide System</title>
+    
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/characters.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <h2 class="navbar-title" onclick="loadModule('home')" style="cursor: pointer;">WW GUIDE</h2>
+        <ul class="nav-links">
+            <li onclick="loadModule('characters')">Characters</li>
+            <li onclick="loadModule('weapons')">Weapons</li>
+            <li onclick="loadModule('echoes')">Echoes</li>
+            <li onclick="loadModule('map')">Map</li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <header class="top-header" id="top-header">
+            <h1 id="module-title">Welcome</h1>
+            <div id="search-container" class="search-container">
+            </div>
+        </header>
+        
+        <div id="module-display" class="module-container">
+        </div>
+    </div>
+
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modalBody" class="modal-body-layout">
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/home.js"></script>
+    <script src="../js/characters.js"></script>
+    <script src="../js/weapons.js"></script>
+    <script src="../js/echoes.js"></script>
+
+</body>
+</html>
