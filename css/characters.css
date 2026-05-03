@@ -1,6 +1,3 @@
-/* =========================================
-   11. Character Page Specific Styles (角色列表页)
-   ========================================= */
 .char-page-header,
 .char-filter-container,
 .card-grid {
@@ -124,9 +121,6 @@
     color: #ffffff;
 }
 
-/* =========================================
-   12. Character Detail Page (完美对齐 & 紧凑版)
-   ========================================= */
 .char-detail-page {
     max-width: 1100px; 
     margin: 0 auto;
@@ -136,43 +130,41 @@
 .char-detail-content {
     display: flex;
     gap: 40px;
-    align-items: stretch; /* 🌟 关键魔法：强制左边(图片)和右边(数据)高度完全一样！ */
+    align-items: stretch; 
 }
 
-/* 左侧：图片框 */
 .char-detail-left {
     width: 35%; 
 }
 
 .char-arch-bg {
-    height: 100%; /* 🌟 紧紧跟随右边数据框的总高度 */
+    height: 100%; 
     background: linear-gradient(180deg, #3d4255 0%, #1e212b 100%);
     border-top-left-radius: 200px;
     border-top-right-radius: 200px;
-    border-bottom-left-radius: 12px; /* 和右边的圆角呼应 */
+    border-bottom-left-radius: 12px; 
     border-bottom-right-radius: 12px;
     padding: 30px 20px 0 20px;
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* 🌟 让图片老老实实沉在最底下 */
+    align-items: flex-end; 
     position: relative;
     overflow: hidden;
 }
 
 .char-arch-bg img {
     width: 100%; 
-    height: 100%; /* 填满高度 */
+    height: 100%; 
     object-fit: cover;
     object-position: top center;
-    margin-bottom: 0; /* 删掉之前的负边距，因为已经用flex-end贴底了 */
+    margin-bottom: 0; 
 }
 
-/* 右侧：数据框 (整体变紧凑) */
 .char-detail-right {
     width: 65%; 
     display: flex;
     flex-direction: column;
-    gap: 12px; /* 🌟 缩小各大板块之间的间距 */
+    gap: 12px; 
 }
 
 .detail-header {
@@ -184,7 +176,7 @@
 
 .detail-title-box h1 {
     font-size: 2.2em;
-    margin: 0; /* 🌟 删掉了底边距，因为下面没副标题了 */
+    margin: 0; 
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -226,16 +218,15 @@
 .tag-weapon { border-color: #e0e0e0; color: #e0e0e0; }
 .tag-element { border-color: #48c78e; color: #48c78e; }
 
-/* 压缩等级滑块区 */
 .detail-level-section {
-    padding: 0; /* 🌟 彻底去掉 padding */
+    padding: 0; 
 }
 
 .level-label-row {
     display: flex;
     justify-content: space-between;
     font-weight: bold;
-    margin-bottom: 5px; /* 🌟 缩小 */
+    margin-bottom: 5px; 
     color: #e0e0e0;
 }
 
@@ -247,9 +238,9 @@
     width: 100%;
     appearance: none;
     height: 6px;
-    background: #ffcc00;
     border-radius: 3px;
     outline: none;
+    background: linear-gradient(to right, #ffcc00 var(--progress, 100%), #ffffff var(--progress, 100%));
 }
 
 .level-slider::-webkit-slider-thumb {
@@ -260,24 +251,24 @@
     background: #ffffff;
     cursor: pointer;
     border: 2px solid #ffcc00;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
-/* 压缩材料区 */
 .detail-materials-section h3 {
     font-size: 0.9em; 
     color: #ffffff;
-    margin: 0 0 8px 0; /* 🌟 缩小 */
+    margin: 0 0 15px 0; 
 }
 
 .materials-grid {
     display: flex;
-    gap: 8px; /* 🌟 缩小 */
+    gap: 8px; 
 }
 
 .mat-box {
     background-color: #2b2f36; 
     border-radius: 8px;
-    padding: 6px; 
+    padding: 10px 6px; 
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -289,27 +280,31 @@
 .mat-count {
     color: #8c9eff;
     font-weight: bold;
-    font-size: 0.8em; 
-    margin-bottom: 3px;
+    font-size: 0.9em; 
+    margin-bottom: 5px;
 }
 
 .mat-icon-bg {
-    width: 35px; 
-    height: 35px;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 3px; /* 🌟 缩小 */
+    margin: 5px 0 10px 0; 
 }
 
+
 .mat-icon-bg img {
-    width: 28px; /* 🌟 稍微缩小图片适配紧凑度 */
-    height: 28px;
+    width: 65px; 
+    height: 65px;
     object-fit: contain;
+    transition: transform 0.2s ease;
+}
+
+.mat-box:hover .mat-icon-bg img {
+    transform: scale(1.15); 
 }
 
 .mat-name {
-    font-size: 0.7em; 
+    font-size: 0.75em; 
     text-align: center;
     color: #cfd6dc;
     line-height: 1.2;
@@ -327,7 +322,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 15px; /* 🌟 大幅缩小每一行的留白，变紧凑 */
+    padding: 6px 15px; 
     border-radius: 6px; 
     margin-bottom: 1px; 
 }
@@ -340,6 +335,17 @@
     color: #cfd6dc;
     font-weight: 500;
     font-size: 0.85em; 
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+}
+
+
+.stat-icon {
+    width: 18px; 
+    height: 18px;
+    object-fit: contain;
+
 }
 
 .stat-value {
@@ -348,9 +354,7 @@
     font-size: 0.9em; 
 }
 
-/* =========================================
-   🌟 全宽角色档案/故事区域 (极简纯色版)
-   ========================================= */
+
 .detail-lore-section {
     margin-top: 30px; 
     background-color: #1c2025; 
@@ -373,4 +377,25 @@
     color: #cfd6dc;
     line-height: 1.8; 
     text-align: justify; 
+}
+
+
+.mat-icon-bg img {
+    width: 65px; 
+    height: 65px; 
+    object-fit: contain;
+    transition: transform 0.2s ease; 
+}
+
+
+.mat-box:hover .mat-icon-bg img {
+    transform: scale(1.15); 
+}
+
+
+.mat-icon-bg {
+    margin: 10px 0; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

@@ -47,7 +47,7 @@ function setupCharacterControls() {
             <div class="filter-group">
                 <label>Weapon Type</label>
                 <select id="charWeaponSelect" onchange="searchCharsAction()">
-                    <option value="Any">Any</option>
+                    <option value="All">All</option>
                     <option value="Sword">Sword</option>
                     <option value="Broadblade">Broadblade</option>
                     <option value="Pistols">Pistols</option>
@@ -114,19 +114,15 @@ function fetchChars(search = '', element = '', rarity = 'All', weapon = 'Any') {
         });
 }
 
-// 🌟 新增：updateHistory 参数控制是否写入历史记录
 function openCharPage(char, updateHistory = true) {
     
-    // 🌟 核心魔法：向浏览器压入详情页的历史记录
     if (updateHistory) {
-        // 生成漂亮的 URL 比如 #char_sigrika
         const safeName = char.name.toLowerCase().replace(/[\s\W]+/g, '_');
         window.history.pushState({ module: 'char_detail', charData: char }, "", "#char_" + safeName);
     }
 
     const display = document.getElementById('module-display');
     const topHeader = document.getElementById('top-header');
-    
     if (topHeader) topHeader.style.display = 'none';
 
     const stars = char.rarity + '★';
@@ -141,13 +137,24 @@ function openCharPage(char, updateHistory = true) {
 
     const mat1Name = char.mat_1 || "Our Choice";
     const mat2Name = char.mat_2 || "Arithmetic Shell";
-    const mat3Name = char.mat_3 || "Intact Exoswarm Pendant"; 
     
+    const t1Name = char.mat_3_tier1 || "Tier 1 Material";
+    const t2Name = char.mat_3_tier2 || "Tier 2 Material";
+    const t3Name = char.mat_3_tier3 || "Tier 3 Material";
+    const t4Name = char.mat_3_tier4 || "Tier 4 Material";
+
+    const hpBase = char.hp_base || 800;
+    const hpMax = char.hp_max || 10000;
+    const atkBase = char.atk_base || 20;
+    const atkMax = char.atk_max || 400;
+    const defBase = char.def_base || 50;
+    const defMax = char.def_max || 1000;
+
     const formatMatImg = (name) => 'mat_' + name.toLowerCase().trim().replace(/[\s\W]+/g, '_') + '.png';
     
     const mat1Img = formatMatImg(mat1Name);
     const mat2Img = formatMatImg(mat2Name);
-    const mat3Img = formatMatImg(mat3Name);
+    const mat3Img = formatMatImg(t4Name); 
     const mat4Img = 'mat_credit.png'; 
 
     display.innerHTML = `
@@ -182,67 +189,50 @@ function openCharPage(char, updateHistory = true) {
                             <span>Level</span>
                             <span class="level-max" id="char-level-display">90</span>
                         </div>
-                        <input type="range" min="1" max="90" value="90" class="level-slider" oninput="updateCharLevel(this.value)">
+                        <input type="range" min="1" max="90" value="90" class="level-slider" 
+                               data-t1="${t1Name}" data-t2="${t2Name}" data-t3="${t3Name}" data-t4="${t4Name}"
+                               data-char-name="${char.name}"
+                               oninput="updateCharLevel(this.value)">
                     </div>
 
                     <div class="detail-materials-section">
                         <h3>${char.name} Ascension Materials</h3>
                         <div class="materials-grid">
-                            <div class="mat-box">
-                                <span class="mat-count" id="mat-count-1">16</span>
-                                <div class="mat-icon-bg"><img src="../images/${mat1Img}" onerror="this.src='../images/default.jpg'"></div>
-                                <span class="mat-name">${mat1Name}</span>
-                            </div>
-                            <div class="mat-box">
-                                <span class="mat-count" id="mat-count-2">20</span>
-                                <div class="mat-icon-bg"><img src="../images/${mat2Img}" onerror="this.src='../images/default.jpg'"></div>
-                                <span class="mat-name">${mat2Name}</span>
-                            </div>
-                            <div class="mat-box">
-                                <span class="mat-count" id="mat-count-3">4</span>
-                                <div class="mat-icon-bg"><img id="mat-img-3" src="../images/${mat3Img}" onerror="this.src='../images/default.jpg'"></div>
-                                <span class="mat-name" id="mat-name-3">${mat3Name}</span>
-                            </div>
-                            <div class="mat-box">
-                                <span class="mat-count" id="mat-count-4">80,000</span>
-                                <div class="mat-icon-bg"><img src="../images/${mat4Img}" onerror="this.src='../images/default.jpg'"></div>
-                                <span class="mat-name">Shell Credit</span>
-                            </div>
+                            <div class="mat-box"><span class="mat-count" id="mat-count-1">16</span><div class="mat-icon-bg"><img src="../images/${mat1Img}" onerror="this.src='../images/default.jpg'"></div><span class="mat-name">${mat1Name}</span></div>
+                            <div class="mat-box"><span class="mat-count" id="mat-count-2">20</span><div class="mat-icon-bg"><img src="../images/${mat2Img}" onerror="this.src='../images/default.jpg'"></div><span class="mat-name">${mat2Name}</span></div>
+                            <div class="mat-box"><span class="mat-count" id="mat-count-3">4</span><div class="mat-icon-bg"><img id="mat-img-3" src="../images/${mat3Img}" onerror="this.src='../images/default.jpg'"></div><span class="mat-name" id="mat-name-3">${t4Name}</span></div>
+                            <div class="mat-box"><span class="mat-count" id="mat-count-4">80,000</span><div class="mat-icon-bg"><img src="../images/${mat4Img}" onerror="this.src='../images/default.jpg'"></div><span class="mat-name">Shell Credit</span></div>
                         </div>
                     </div>
 
                     <div class="detail-stats-section">
+                        <!-- 🌟 用 <img> 标签替换了原本的 Emoji -->
                         <div class="stat-row">
-                            <span class="stat-label">❤️ HP</span>
-                            <span class="stat-value">10775</span>
+                            <span class="stat-label"><img src="../images/stat_hp.png" class="stat-icon" onerror="this.style.display='none'"> HP (Lv.1 / 90)</span>
+                            <span class="stat-value">${hpBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${hpMax.toLocaleString()}</span>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">⚔️ ATK</span>
-                            <span class="stat-value">437</span>
+                            <span class="stat-label"><img src="../images/stat_atk.png" class="stat-icon" onerror="this.style.display='none'"> ATK (Lv.1 / 90)</span>
+                            <span class="stat-value">${atkBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${atkMax.toLocaleString()}</span>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">🛡️ DEF</span>
-                            <span class="stat-value">1136</span>
+                            <span class="stat-label"><img src="../images/stat_def.png" class="stat-icon" onerror="this.style.display='none'"> DEF (Lv.1 / 90)</span>
+                            <span class="stat-value">${defBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${defMax.toLocaleString()}</span>
                         </div>
+                        
                         <div class="stat-row">
-                            <span class="stat-label">✨ Crit. Rate</span>
+                            <span class="stat-label"><img src="../images/stat_crit_rate.png" class="stat-icon" onerror="this.style.display='none'"> Crit. Rate</span>
                             <span class="stat-value">5%</span>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">💥 Crit. DMG</span>
+                            <span class="stat-label"><img src="../images/stat_crit_dmg.png" class="stat-icon" onerror="this.style.display='none'"> Crit. DMG</span>
                             <span class="stat-value">150%</span>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">⚡ Energy Regen</span>
+                            <span class="stat-label"><img src="../images/stat_energy_regen.png" class="stat-icon" onerror="this.style.display='none'"> Energy Regen</span>
                             <span class="stat-value">100%</span>
                         </div>
-                        <div class="stat-row">
-                            <span class="stat-label">🔵 Max Resonance Energy</span>
-                            <span class="stat-value">140</span>
-                        </div>
                     </div>
-                </div>
-            </div>
 
             <div class="detail-lore-section">
                 <h3>Background</h3>
@@ -257,44 +247,53 @@ function openCharPage(char, updateHistory = true) {
 
 function updateCharLevel(newLevel) {
     const levelDisplay = document.getElementById('char-level-display');
-    if (levelDisplay) {
-        levelDisplay.innerText = newLevel;
+    if (levelDisplay) levelDisplay.innerText = newLevel;
+
+    const slider = document.querySelector('.level-slider');
+    let t1 = "Tier 1", t2 = "Tier 2", t3 = "Tier 3", t4 = "Tier 4";
+    let charName = ""; 
+    
+    if (slider) {
+        t1 = slider.getAttribute('data-t1');
+        t2 = slider.getAttribute('data-t2');
+        t3 = slider.getAttribute('data-t3');
+        t4 = slider.getAttribute('data-t4');
+        charName = slider.getAttribute('data-char-name') || ""; 
+
+        const min = slider.min || 1;
+        const max = slider.max || 90;
+        const percentage = ((newLevel - min) / (max - min)) * 100;
+        slider.style.setProperty('--progress', `${percentage}%`);
     }
 
     let mat1 = 0, mat2 = 0, mat3 = 0, mat4 = 0;
     const lvl = parseInt(newLevel);
-
-    let mat3DynamicName = "Intact Exoswarm Pendant";
-    if (lvl < 41) {
-        mat3DynamicName = "Fractured Exoswarm Pendant";
-    } else if (lvl >= 41 && lvl < 61) {
-        mat3DynamicName = "Worn Exoswarm Pendant";
-    } else {
-        mat3DynamicName = "Intact Exoswarm Pendant";
-    }
+    
+    let currentMat3Name = t4; 
+    if (lvl < 41) currentMat3Name = t1;
+    else if (lvl >= 41 && lvl < 61) currentMat3Name = t2;
+    else if (lvl >= 61 && lvl < 81) currentMat3Name = t3;
+    else if (lvl >= 81) currentMat3Name = t4;
 
     const name3Elem = document.getElementById('mat-name-3');
     const img3Elem = document.getElementById('mat-img-3');
     if (name3Elem && img3Elem) {
-        name3Elem.innerText = mat3DynamicName;
-        const newImgPath = '../images/mat_' + mat3DynamicName.toLowerCase().trim().replace(/[\s\W]+/g, '_') + '.png';
+        name3Elem.innerText = currentMat3Name;
+        const newImgPath = '../images/mat_' + currentMat3Name.toLowerCase().trim().replace(/[\s\W]+/g, '_') + '.png';
         img3Elem.src = newImgPath;
     }
 
-    if (lvl < 21) {
-        mat1 = 0; mat2 = 0; mat3 = 0; mat4 = 0;
-    } else if (lvl >= 21 && lvl < 41) {
-        mat1 = 0; mat2 = 0; mat3 = 4; mat4 = 5000;
-    } else if (lvl >= 41 && lvl < 51) {
-        mat1 = 3; mat2 = 4; mat3 = 4; mat4 = 10000;
-    } else if (lvl >= 51 && lvl < 61) {
-        mat1 = 6; mat2 = 8; mat3 = 8; mat4 = 15000;
-    } else if (lvl >= 61 && lvl < 71) {
-        mat1 = 9; mat2 = 12; mat3 = 4; mat4 = 20000;
-    } else if (lvl >= 71 && lvl < 81) {
-        mat1 = 12; mat2 = 16; mat3 = 8; mat4 = 40000;
-    } else if (lvl >= 81) {
-        mat1 = 16; mat2 = 20; mat3 = 4; mat4 = 80000;
+    if (lvl < 21) { mat1 = 0; mat2 = 0; mat3 = 0; mat4 = 0; } 
+    else if (lvl >= 21 && lvl < 41) { mat1 = 0; mat2 = 0; mat3 = 4; mat4 = 5000; } 
+    else if (lvl >= 41 && lvl < 51) { mat1 = 3; mat2 = 4; mat3 = 4; mat4 = 10000; } 
+    else if (lvl >= 51 && lvl < 61) { mat1 = 6; mat2 = 8; mat3 = 8; mat4 = 15000; } 
+    else if (lvl >= 61 && lvl < 71) { mat1 = 9; mat2 = 12; mat3 = 4; mat4 = 20000; } 
+    else if (lvl >= 71 && lvl < 81) { mat1 = 12; mat2 = 16; mat3 = 8; mat4 = 40000; } 
+    else if (lvl >= 81) { mat1 = 16; mat2 = 20; mat3 = 4; mat4 = 80000; }
+
+    if (charName.includes("Rover")) {
+        if (lvl < 41) mat1 = 0; 
+        else mat1 = 1; 
     }
 
     const count1 = document.getElementById('mat-count-1');

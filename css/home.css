@@ -1,18 +1,16 @@
-/* 10. Home Dashboard Styles */
 .home-container {
     text-align: center;
-    max-width: 1200px; /* 适当放宽容器，让包裹层有呼吸空间 */
+    max-width: 1200px; 
     margin: 0 auto;
     padding: 20px;
 }
 
-/* 🌟 包裹层样式：突出中心区域 */
 .home-hero-section {
-    background-color: #16191c; /* 使用比主体背景略亮的深灰色，增加层次感 */
-    border: 1px solid #2d3238; /* 极细的边框，提升精致度 */
-    border-radius: 24px; /* 大圆角设计，符合现代游戏 UI */
-    padding: 60px 40px; /* 内部留白，让内容不拥挤 */
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); /* 较重的阴影让区域“浮”起来 */
+    background-color: #16191c; 
+    border: 1px solid #2d3238; 
+    border-radius: 24px; 
+    padding: 60px 40px; 
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); 
     margin-top: 20px;
 }
 
@@ -20,7 +18,7 @@
     font-size: 2.8em;
     color: #fff;
     margin-bottom: 15px;
-    margin-top: 0; /* 移除顶部间距，适应包裹层 */
+    margin-top: 0; 
 }
 
 .home-title span {
