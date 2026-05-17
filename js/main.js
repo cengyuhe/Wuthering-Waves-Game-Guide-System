@@ -52,6 +52,11 @@ window.addEventListener('popstate', function(event) {
                 openCharPage(event.state.charData, false); 
             }
         } 
+        else if (event.state.module === 'weapon_detail' && event.state.weaponData) {
+            if (typeof openWeaponPage === 'function') {
+                openWeaponPage(event.state.weaponData, false);
+            }
+        }
         else if (event.state.module) {
             loadModule(event.state.module, false);
         }
@@ -65,6 +70,10 @@ window.onload = () => {
         openCharPage(window.history.state.charData, false);
         return;
     }
+    if (window.history.state && window.history.state.module === 'weapon_detail' && window.history.state.weaponData) {
+        openWeaponPage(window.history.state.weaponData, false);
+        return;
+    }
 
     const hash = window.location.hash.replace('#', '');
 
@@ -72,6 +81,10 @@ window.onload = () => {
         loadModule('characters', false);
         window.history.replaceState({ module: 'characters' }, "", "#characters");
     } 
+    else if (hash.startsWith('wp_')) {
+        loadModule('weapons', false);
+        window.history.replaceState({ module: 'weapons' }, "", "#weapons");
+    }
     else if (hash) {
         loadModule(hash, false); 
         window.history.replaceState({ module: hash }, "", "#" + hash);
