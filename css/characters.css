@@ -216,7 +216,7 @@
 }
 
 .tag-weapon { border-color: #e0e0e0; color: #e0e0e0; }
-.tag-element { border-color: #48c78e; color: #48c78e; }
+.tag-element { border-color: #e0e0e0; color: #e0e0e0; }
 
 .detail-level-section {
     padding: 0; 
@@ -310,11 +310,10 @@
     line-height: 1.2;
 }
 
-/* 压缩数值面板 */
 .detail-stats-section {
     background-color: #2b2f36; 
     border-radius: 10px; 
-    padding: 6px; /* 🌟 缩小 */
+    padding: 6px;
     margin-top: 0; 
 }
 

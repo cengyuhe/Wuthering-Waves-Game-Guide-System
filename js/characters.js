@@ -2,13 +2,14 @@ let activeElement = '';
 
 function initCharactersModule() {
     setupCharacterControls();
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.scrollTop = 0;
     fetchChars();
 }
 
 function setupCharacterControls() {
     const display = document.getElementById('module-display');
     const topHeader = document.getElementById('top-header');
-    
     if (topHeader) topHeader.style.display = 'none'; 
     
     const headerHtml = `
@@ -16,13 +17,11 @@ function setupCharacterControls() {
             <h2>Wuthering Waves <span>Characters</span></h2>
             <p>All Characters in Wuthering Waves.</p>
         </div>
-        
         <div class="char-filter-container">
             <div class="filter-group" style="flex-grow: 1;">
                 <label>Search</label>
                 <input type="text" id="charSearchInput" placeholder="Enter name" onkeyup="searchCharsAction()">
             </div>
-            
             <div class="filter-group">
                 <label>Element</label>
                 <div class="element-buttons">
@@ -34,7 +33,6 @@ function setupCharacterControls() {
                     <button class="elem-btn" onclick="setCharElement('Havoc', this)" title="Havoc"><img src="../images/ele_havoc.png" alt="Havoc"></button>
                 </div>
             </div>
-            
             <div class="filter-group">
                 <label>Rarity</label>
                 <select id="charRaritySelect" onchange="searchCharsAction()">
@@ -43,7 +41,6 @@ function setupCharacterControls() {
                     <option value="4">4 Star</option>
                 </select>
             </div>
-            
             <div class="filter-group">
                 <label>Weapon Type</label>
                 <select id="charWeaponSelect" onchange="searchCharsAction()">
@@ -58,7 +55,6 @@ function setupCharacterControls() {
         </div>
         <div class='card-grid' id='char-grid'></div>
     `;
-    
     display.innerHTML = headerHtml;
 }
 
@@ -85,17 +81,16 @@ function searchCharsAction() {
 function fetchChars(search = '', element = '', rarity = 'All', weapon = 'Any') {
     let grid = document.getElementById('char-grid');
     if (!grid) return;
-    
     grid.innerHTML = "<p style='text-align:center; width:100%; color:#9da5ad;'>Loading Database...</p>";
     
     fetch(`../php/api.php?action=get_characters&search=${search}&element=${element}&rarity=${rarity}&weapon=${weapon}`)
         .then(res => res.json())
         .then(data => {
-            grid.innerHTML = "";
             if (data.length === 0) {
                 grid.innerHTML = "<p style='text-align:center; width:100%; color:#9da5ad;'>No characters found.</p>";
                 return;
             }
+            let htmlContent = "";
             data.forEach(char => {
                 let rarityClass = 'grey';
                 if (char.rarity == 5) rarityClass = 'gold';
@@ -104,18 +99,17 @@ function fetchChars(search = '', element = '', rarity = 'All', weapon = 'Any') {
                 else if (char.rarity == 2) rarityClass = 'green';
                 
                 const charJson = JSON.stringify(char).replace(/"/g, '&quot;');
-                
-                grid.innerHTML += `
+                htmlContent += `
                     <div class="card ${rarityClass}" onclick="openCharPage(${charJson})">
-                        <img src="../images/${char.image_url}" onerror="this.src='../images/default.jpg'">
+                        <img src="../images/${char.image_url}" loading="lazy" onerror="this.src='../images/default.jpg'">
                     </div>
                 `;
             });
+            grid.innerHTML = htmlContent;
         });
 }
 
 function openCharPage(char, updateHistory = true) {
-    
     if (updateHistory) {
         const safeName = char.name.toLowerCase().replace(/[\s\W]+/g, '_');
         window.history.pushState({ module: 'char_detail', charData: char }, "", "#char_" + safeName);
@@ -137,7 +131,6 @@ function openCharPage(char, updateHistory = true) {
 
     const mat1Name = char.mat_1 || "Our Choice";
     const mat2Name = char.mat_2 || "Arithmetic Shell";
-    
     const t1Name = char.mat_3_tier1 || "Tier 1 Material";
     const t2Name = char.mat_3_tier2 || "Tier 2 Material";
     const t3Name = char.mat_3_tier3 || "Tier 3 Material";
@@ -151,7 +144,6 @@ function openCharPage(char, updateHistory = true) {
     const defMax = char.def_max || 1000;
 
     const formatMatImg = (name) => 'mat_' + name.toLowerCase().trim().replace(/[\s\W]+/g, '_') + '.png';
-    
     const mat1Img = formatMatImg(mat1Name);
     const mat2Img = formatMatImg(mat2Name);
     const mat3Img = formatMatImg(t4Name); 
@@ -160,13 +152,11 @@ function openCharPage(char, updateHistory = true) {
     display.innerHTML = `
         <div class="char-detail-page" style="padding-top: 20px;">
             <div class="char-detail-content">
-                
                 <div class="char-detail-left">
                     <div class="char-arch-bg">
                         <img src="../images/${detailImageName}" onerror="this.src='../images/${char.image_url}'" alt="${char.name}">
                     </div>
                 </div>
-
                 <div class="char-detail-right">
                     <div class="detail-header">
                         <div class="detail-title-box">
@@ -183,7 +173,6 @@ function openCharPage(char, updateHistory = true) {
                             </span>
                         </div>
                     </div>
-
                     <div class="detail-level-section">
                         <div class="level-label-row">
                             <span>Level</span>
@@ -194,7 +183,6 @@ function openCharPage(char, updateHistory = true) {
                                data-char-name="${char.name}"
                                oninput="updateCharLevel(this.value)">
                     </div>
-
                     <div class="detail-materials-section">
                         <h3>${char.name} Ascension Materials</h3>
                         <div class="materials-grid">
@@ -204,9 +192,7 @@ function openCharPage(char, updateHistory = true) {
                             <div class="mat-box"><span class="mat-count" id="mat-count-4">80,000</span><div class="mat-icon-bg"><img src="../images/${mat4Img}" onerror="this.src='../images/default.jpg'"></div><span class="mat-name">Shell Credit</span></div>
                         </div>
                     </div>
-
                     <div class="detail-stats-section">
-                        <!-- 🌟 用 <img> 标签替换了原本的 Emoji -->
                         <div class="stat-row">
                             <span class="stat-label"><img src="../images/stat_hp.png" class="stat-icon" onerror="this.style.display='none'"> HP (Lv.1 / 90)</span>
                             <span class="stat-value">${hpBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${hpMax.toLocaleString()}</span>
@@ -219,7 +205,6 @@ function openCharPage(char, updateHistory = true) {
                             <span class="stat-label"><img src="../images/stat_def.png" class="stat-icon" onerror="this.style.display='none'"> DEF (Lv.1 / 90)</span>
                             <span class="stat-value">${defBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${defMax.toLocaleString()}</span>
                         </div>
-                        
                         <div class="stat-row">
                             <span class="stat-label"><img src="../images/stat_crit_rate.png" class="stat-icon" onerror="this.style.display='none'"> Crit. Rate</span>
                             <span class="stat-value">5%</span>
@@ -233,16 +218,20 @@ function openCharPage(char, updateHistory = true) {
                             <span class="stat-value">100%</span>
                         </div>
                     </div>
-
             <div class="detail-lore-section">
                 <h3>Background</h3>
                 <p>${char.guide_content}</p>
             </div>
-            
         </div>
     `;
     
     updateCharLevel(90);
+
+    // 🌟🌟 终极滚动修复
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        mainContent.scrollTop = 0;
+    }
 }
 
 function updateCharLevel(newLevel) {
@@ -259,7 +248,6 @@ function updateCharLevel(newLevel) {
         t3 = slider.getAttribute('data-t3');
         t4 = slider.getAttribute('data-t4');
         charName = slider.getAttribute('data-char-name') || ""; 
-
         const min = slider.min || 1;
         const max = slider.max || 90;
         const percentage = ((newLevel - min) / (max - min)) * 100;
@@ -268,7 +256,6 @@ function updateCharLevel(newLevel) {
 
     let mat1 = 0, mat2 = 0, mat3 = 0, mat4 = 0;
     const lvl = parseInt(newLevel);
-    
     let currentMat3Name = t4; 
     if (lvl < 41) currentMat3Name = t1;
     else if (lvl >= 41 && lvl < 61) currentMat3Name = t2;

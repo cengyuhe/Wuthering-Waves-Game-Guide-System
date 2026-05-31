@@ -73,26 +73,49 @@ if ($action == 'get_weapons') {
     echo json_encode($data);
 }
 
-if ($action == 'get_echoes') {
-    $search = isset($_GET['search']) ? $_GET['search'] : '';
-    $cost = isset($_GET['cost']) ? $_GET['cost'] : '';
-    $phantom = isset($_GET['phantom']) ? $_GET['phantom'] : '';
-    $sql = "SELECT * FROM echoes WHERE 1=1";
-    if (!empty($search)) {
-        $keyword = $conn->real_escape_string($search);
-        $sql .= " AND name LIKE '%$keyword%'";
-    }
-    if (!empty($cost)) {
-        $cost_num = $conn->real_escape_string($cost);
-        $sql .= " AND cost = $cost_num";
-    }
-    if ($phantom === '1') {
-        $sql .= " AND is_phantom = 1";
-    }
+if ($action == 'get_sonatas') {
+    $sql = "SELECT * FROM sonatas";
     $result = $conn->query($sql);
-    $data = [];
-    if ($result) { while($row = $result->fetch_assoc()) { $data[] = $row; } }
-    echo json_encode($data);
+    $sonatas = array();
+    
+    if ($result && $result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $sonatas[] = $row;
+        }
+    }
+    
+    echo json_encode($sonatas);
+    exit;
+}
+
+if ($action == 'get_echoes') {
+    $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+    $cost = isset($_GET['cost']) ? $conn->real_escape_string($_GET['cost']) : 'All';
+    $sonata = isset($_GET['sonata']) ? $conn->real_escape_string($_GET['sonata']) : 'All';
+    
+    $sql = "SELECT * FROM echoes WHERE name LIKE '%$search%'";
+    
+    if ($cost !== 'All') {
+        $sql .= " AND cost = '$cost'";
+    }
+    
+    if ($sonata !== 'All') {
+        $sql .= " AND sonata_effect LIKE '%$sonata%'";
+    }
+    
+    $sql .= " ORDER BY cost DESC, name ASC";
+    
+    $result = $conn->query($sql);
+    $echoes = array();
+    
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $echoes[] = $row;
+        }
+    }
+    
+    echo json_encode($echoes);
+    exit;
 }
 
 $conn->close();
