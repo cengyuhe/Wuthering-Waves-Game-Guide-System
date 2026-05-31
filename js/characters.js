@@ -1,10 +1,46 @@
 let activeElement = ''; 
+let cachedWeapons = {}; 
+let cachedEchoes = {};
+let cachedSonatas = {};
+
+const normalizeName = (name) => {
+    return name ? name.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+};
+
+function ensureCachesLoaded(callback) {
+    if (Object.keys(cachedWeapons).length > 0 && Object.keys(cachedEchoes).length > 0) {
+        callback();
+        return;
+    }
+    
+    Promise.all([
+        fetch(`../php/api.php?action=get_weapons`).then(res => res.json()),
+        fetch(`../php/api.php?action=get_echoes`).then(res => res.json()),
+        fetch(`../php/api.php?action=get_sonatas`).then(res => res.json())
+    ])
+    .then(([weaponsData, echoesData, sonatasData]) => {
+        cachedWeapons = {};
+        weaponsData.forEach(w => { cachedWeapons[normalizeName(w.name)] = w; });
+        
+        cachedEchoes = {};
+        echoesData.forEach(e => { cachedEchoes[normalizeName(e.name)] = e; });
+        
+        cachedSonatas = {};
+        sonatasData.forEach(s => { cachedSonatas[normalizeName(s.name)] = s; });
+        
+        callback();
+    })
+    .catch(() => callback());
+}
 
 function initCharactersModule() {
     setupCharacterControls();
     const mainContent = document.querySelector('.main-content');
     if (mainContent) mainContent.scrollTop = 0;
-    fetchChars();
+    
+    ensureCachesLoaded(() => {
+        fetchChars();
+    });
 }
 
 function setupCharacterControls() {
@@ -109,7 +145,114 @@ function fetchChars(search = '', element = '', rarity = 'All', weapon = 'Any') {
         });
 }
 
+function generateEchoBuildHtml(buildName, echoName, sonataStr) {
+    if (!echoName || echoName.trim() === '') return '';
+
+    const echoObj = cachedEchoes[normalizeName(echoName)];
+    const formatEchoImg = (name) => name.toLowerCase().trim().replace(/[\s\W]+/g, '_') + '.jpg';
+    const formatSonataImg = (name) => 'sonata_' + name.toLowerCase().trim().replace(/[\s\W]+/g, '_') + '.png';
+
+    const eImg = echoObj ? `../images/${echoObj.image_url}` : `../images/${formatEchoImg(echoName)}`;
+    const jEcho = echoObj ? JSON.stringify(echoObj).replace(/"/g, '&quot;') : 'null';
+
+    const sonataArray = sonataStr ? sonataStr.split('+').map(s => s.trim()) : [];
+    let s1 = sonataArray[0] || 'Various';
+    let s2 = sonataArray.length > 1 ? sonataArray[1] : s1;
+
+    const renderSlot = (cost, isSpecific, name, sName, img, jData) => {
+        const sImgHtml = sName !== 'Various' ? `<div class="echo-sonata-mini"><img src="../images/${formatSonataImg(sName)}" onerror="this.style.display='none'"></div>` : '';
+        
+        if (isSpecific) {
+            return `
+                <div class="echo-slot ${jData !== 'null' ? 'clickable' : ''}" ${jData !== 'null' ? `onclick="goToEchoDetail(${jData})"` : ''}>
+                    <div class="echo-icon-wrapper">
+                        <img src="${img}" class="echo-img" onerror="this.src='../images/default.jpg'">
+                        ${sImgHtml}
+                        <div class="echo-cost-mini">${cost}</div>
+                    </div>
+                    <div class="echo-slot-name wp-color-5">${name}</div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="echo-slot">
+                    <div class="echo-icon-wrapper generic-echo">
+                        <span class="generic-cost-text">${cost}</span>
+                        ${sImgHtml}
+                        <div class="echo-cost-mini">${cost}</div>
+                    </div>
+                    <div class="echo-slot-name" style="color: #7b848d;">Any Cost ${cost}</div>
+                </div>
+            `;
+        }
+    };
+
+    let setInfoHtml = '';
+    if (sonataArray.length > 1) {
+        const s1Data = cachedSonatas[normalizeName(s1)];
+        const s2Data = cachedSonatas[normalizeName(s2)];
+        const desc1 = s1Data && s1Data.tier1_desc ? s1Data.tier1_desc : '2-Pc effect to be updated.';
+        const desc2 = s2Data && s2Data.tier1_desc ? s2Data.tier1_desc : '2-Pc effect to be updated.';
+        setInfoHtml = `
+            <div class="sonata-info-box">
+                <div style="margin-bottom: 5px;"><strong>Mixed Set (2+2)</strong></div>
+                <ul class="sonata-desc-list">
+                    <li><strong>${s1}:</strong> ${desc1}</li>
+                    <li><strong>${s2}:</strong> ${desc2}</li>
+                </ul>
+            </div>
+        `;
+    } else if (s1 !== 'Various') {
+        const sData = cachedSonatas[normalizeName(s1)];
+        const desc1 = sData && sData.tier1_desc ? sData.tier1_desc : '2-Pc effect to be updated.';
+        const desc2 = sData && sData.tier2_desc ? sData.tier2_desc : '5-Pc effect to be updated.';
+        setInfoHtml = `
+            <div class="sonata-info-box">
+                <div style="margin-bottom: 5px;"><strong>${s1}</strong></div>
+                <ul class="sonata-desc-list">
+                    <li>${desc1}</li>
+                    <li>${desc2}</li>
+                </ul>
+            </div>
+        `;
+    } else {
+        setInfoHtml = `
+            <div class="sonata-info-box" style="text-align:center;">
+                <strong>Set Effect:</strong> Flexible / Any
+            </div>
+        `;
+    }
+
+    const plusHtml = `<div style="color: #7b848d; font-size: 1.8em; font-weight: bold; padding-top: 22px;">+</div>`;
+
+    return `
+        <div class="build-row">
+            <div class="build-title">${buildName || 'Standard Build'}</div>
+            
+            <div class="echo-lineup">
+                ${renderSlot(4, true, echoName, s1, eImg, jEcho)}
+                ${plusHtml}
+                ${renderSlot(3, false, '', s1, '', 'null')}
+                ${plusHtml}
+                ${renderSlot(3, false, '', s2, '', 'null')}
+                ${plusHtml}
+                ${renderSlot(1, false, '', s2, '', 'null')}
+                ${plusHtml}
+                ${renderSlot(1, false, '', s1, '', 'null')}
+            </div>
+            
+            ${setInfoHtml}
+        </div>
+    `;
+}
+
 function openCharPage(char, updateHistory = true) {
+    ensureCachesLoaded(() => {
+        renderCharPage(char, updateHistory);
+    });
+}
+
+function renderCharPage(char, updateHistory) {
     if (updateHistory) {
         const safeName = char.name.toLowerCase().replace(/[\s\W]+/g, '_');
         window.history.pushState({ module: 'char_detail', charData: char }, "", "#char_" + safeName);
@@ -148,6 +291,60 @@ function openCharPage(char, updateHistory = true) {
     const mat2Img = formatMatImg(mat2Name);
     const mat3Img = formatMatImg(t4Name); 
     const mat4Img = 'mat_credit.png'; 
+
+    const recWp1 = char.rec_wp_1 || "Signature Weapon";
+    const recWp2 = char.rec_wp_2 || "Standard 5-Star";
+    const recWp3 = char.rec_wp_3 || "Best 4-Star Option";
+
+    const w1 = cachedWeapons[normalizeName(recWp1)];
+    const w2 = cachedWeapons[normalizeName(recWp2)];
+    const w3 = cachedWeapons[normalizeName(recWp3)];
+
+    const formatFallbackWpImg = (name) => name.toLowerCase().trim().replace(/[\s\W]+/g, '_') + '.jpg';
+
+    const img1 = w1 ? `../images/${w1.image_url}` : `../images/${formatFallbackWpImg(recWp1)}`;
+    const img2 = w2 ? `../images/${w2.image_url}` : `../images/${formatFallbackWpImg(recWp2)}`;
+    const img3 = w3 ? `../images/${w3.image_url}` : `../images/${formatFallbackWpImg(recWp3)}`;
+
+    const c1Class = w1 ? `wp-color-${w1.rarity}` : '';
+    const c2Class = w2 ? `wp-color-${w2.rarity}` : '';
+    const c3Class = w3 ? `wp-color-${w3.rarity}` : '';
+
+    const j1 = w1 ? JSON.stringify(w1).replace(/"/g, '&quot;') : 'null';
+    const j2 = w2 ? JSON.stringify(w2).replace(/"/g, '&quot;') : 'null';
+    const j3 = w3 ? JSON.stringify(w3).replace(/"/g, '&quot;') : 'null';
+
+    let buildsHtml = generateEchoBuildHtml(char.build_1_name, char.rec_echo_1, char.rec_sonata_1);
+    buildsHtml += generateEchoBuildHtml(char.build_2_name, char.rec_echo_2, char.rec_sonata_2);
+
+    if (buildsHtml === '') {
+        buildsHtml = `<p style="color:#7b848d; text-align:center; margin-top:20px;">Echo builds to be updated.</p>`;
+    }
+
+    let bestStatsHtml = '';
+    const bs1 = char.best_stat_1;
+    const bs2 = char.best_stat_2;
+    const bs3 = char.best_stat_3;
+    const bs4 = char.best_stat_4;
+    const bs5 = char.best_stat_5;
+
+    if (bs1 || bs2 || bs3 || bs4 || bs5) {
+        let tagsHtml = '';
+        if (bs1) tagsHtml += `<span class="stat-badge">${bs1}</span>`;
+        if (bs2) tagsHtml += `<span class="stat-badge">${bs2}</span>`;
+        if (bs3) tagsHtml += `<span class="stat-badge">${bs3}</span>`;
+        if (bs4) tagsHtml += `<span class="stat-badge">${bs4}</span>`;
+        if (bs5) tagsHtml += `<span class="stat-badge">${bs5}</span>`;
+
+        bestStatsHtml = `
+            <div class="best-stats-container">
+                <div class="best-stats-title">Best Stats for ${char.name}</div>
+                <div class="best-stats-tags">
+                    ${tagsHtml}
+                </div>
+            </div>
+        `;
+    }
 
     display.innerHTML = `
         <div class="char-detail-page" style="padding-top: 20px;">
@@ -218,16 +415,55 @@ function openCharPage(char, updateHistory = true) {
                             <span class="stat-value">100%</span>
                         </div>
                     </div>
+                </div> 
+            </div> 
+                    
             <div class="detail-lore-section">
                 <h3>Background</h3>
                 <p>${char.guide_content}</p>
             </div>
+
+            <div class="detail-rec-weapons-section">
+                <h3>Recommended Weapons</h3>
+                <div class="rec-weapons-list">
+                    <div class="rec-wp-card ${w1 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j1})">
+                        <img src="${img1}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'">
+                        <div class="rec-wp-info">
+                            <span class="rec-wp-name ${c1Class}">${recWp1}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="rec-wp-arrow">&gt;</div>
+                    
+                    <div class="rec-wp-card ${w2 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j2})">
+                        <img src="${img2}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'">
+                        <div class="rec-wp-info">
+                            <span class="rec-wp-name ${c2Class}">${recWp2}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="rec-wp-arrow">&gt;</div>
+                    
+                    <div class="rec-wp-card ${w3 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j3})">
+                        <img src="${img3}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'">
+                        <div class="rec-wp-info">
+                            <span class="rec-wp-name ${c3Class}">${recWp3}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-rec-echoes-section">
+                <h3>Recommended Echoes</h3>
+                ${buildsHtml}
+                ${bestStatsHtml}
+            </div>
+            
         </div>
     `;
     
     updateCharLevel(90);
 
-    // 🌟🌟 终极滚动修复
     const mainContent = document.querySelector('.main-content');
     if (mainContent) {
         mainContent.scrollTop = 0;
@@ -292,4 +528,16 @@ function updateCharLevel(newLevel) {
     if(count2) count2.innerText = mat2;
     if(count3) count3.innerText = mat3;
     if(count4) count4.innerText = mat4.toLocaleString(); 
+}
+
+function goToWeaponDetail(weaponObj) {
+    if (!weaponObj) return; 
+    loadModule('weapons', false);
+    setTimeout(() => { if (typeof openWeaponPage === 'function') openWeaponPage(weaponObj, true); }, 10);
+}
+
+function goToEchoDetail(echoObj) {
+    if (!echoObj) return; 
+    loadModule('echoes', false);
+    setTimeout(() => { if (typeof openEchoPage === 'function') openEchoPage(echoObj, true); }, 10);
 }
