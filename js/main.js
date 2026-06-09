@@ -1,96 +1,157 @@
+async function toggleFavoriteItem(type, id, btnId) {
+    try {
+        const authRes = await fetch("../php/signin.php?action=check_login");
+        const authData = await authRes.json();
+        
+        if (!authData.logged_in) {
+            showFavoriteLoginModal();
+            return;
+        }
+
+        const response = await fetch("../php/favorites.php?action=toggle", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ item_type: type, item_id: id })
+        });
+        const result = await response.json();
+
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+
+        if (result.status === "added") {
+            btn.innerHTML = "❤️";
+            btn.classList.add("active");
+        } else if (result.status === "removed") {
+            btn.innerHTML = "🤍";
+            btn.classList.remove("active");
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function checkFavoriteUI(type, id, btnId) {
+    try {
+        const authRes = await fetch("../php/signin.php?action=check_login");
+        const authData = await authRes.json();
+        if (!authData.logged_in) return; 
+
+        const res = await fetch(`../php/favorites.php?action=check&item_type=${type}&item_id=${id}`);
+        const data = await res.json();
+        const btn = document.getElementById(btnId);
+
+        if (btn && data.is_favorite) {
+            btn.innerHTML = "❤️";
+            btn.classList.add("active");
+        } else if (btn) {
+            btn.innerHTML = "🤍";
+            btn.classList.remove("active");
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
 function loadModule(moduleName, updateHistory = true) {
     const display = document.getElementById('module-display');
     const title = document.getElementById('module-title');
     const search = document.getElementById('search-container');
     const topHeader = document.getElementById('top-header'); 
     
+    if(!display) return;
     display.innerHTML = "";
-    search.innerHTML = "";
+    if(search) search.innerHTML = "";
 
     if (updateHistory) {
         window.history.pushState({ module: moduleName }, "", "#" + moduleName);
     }
 
     if (moduleName === 'home') {
-        topHeader.style.display = 'none'; 
-        initHomeModule(); 
+        if(topHeader) topHeader.style.display = 'none'; 
+        if(typeof initHomeModule === 'function') initHomeModule(); 
     } 
     else if (moduleName === 'characters') {
-        topHeader.style.display = 'none'; 
-        initCharactersModule();
+        if(topHeader) topHeader.style.display = 'none'; 
+        if(typeof initCharactersModule === 'function') initCharactersModule();
+    }
+    else if (moduleName === 'favorites') {
+        if(topHeader) topHeader.style.display = 'none'; 
+        if(typeof initFavoritesModule === 'function') initFavoritesModule();
     }
     else {
-        topHeader.style.display = 'flex'; 
+        if(topHeader) topHeader.style.display = 'flex'; 
         
         if (moduleName === 'weapons') {
-            title.innerText = "Weapons Info";
-            initWeaponsModule();
+            if(title) title.innerText = "Weapons Info";
+            if(typeof initWeaponsModule === 'function') initWeaponsModule();
         }
         else if (moduleName === 'echoes') {
-            title.innerText = "Echoes Database";
-            initEchoesModule();
-        }
-        else if (moduleName === 'map') {
-            title.innerText = "Interactive Map";
-            display.innerHTML = "<h2>Map Module is under development.</h2>";
+            if(title) title.innerText = "Echoes Database";
+            if(typeof initEchoesModule === 'function') initEchoesModule();
         }
         else {
-            title.innerText = "Coming Soon";
+            if(title) title.innerText = "Coming Soon";
             display.innerHTML = `<h2>The ${moduleName} module is currently under development.</h2>`;
         }
     }
 }
 
 function closeModal() { 
-    document.getElementById('detailModal').style.display = "none"; 
+    const dm = document.getElementById('detailModal');
+    if(dm) dm.style.display = "none"; 
 }
 
-window.addEventListener('popstate', function(event) {
-    if (event.state) {
-        if (event.state.module === 'char_detail' && event.state.charData) {
-            if (typeof openCharPage === 'function') {
-                openCharPage(event.state.charData, false); 
-            }
+window.addEventListener("popstate", (event) => {
+    if (event.state && event.state.module) {
+        const mod = event.state.module;
+        if (mod === 'char_detail' && event.state.charData) {
+            if(typeof openCharPage === 'function') openCharPage(event.state.charData, false);
         } 
-        else if (event.state.module === 'weapon_detail' && event.state.weaponData) {
-            if (typeof openWeaponPage === 'function') {
-                openWeaponPage(event.state.weaponData, false);
-            }
-        }
-        else if (event.state.module) {
-            loadModule(event.state.module, false);
+        else if (mod === 'weapon_detail' && event.state.weaponData) {
+            if(typeof openWeaponPage === 'function') openWeaponPage(event.state.weaponData, false);
+        } 
+        else if (mod === 'echo_detail' && event.state.echoData) {
+            if(typeof openEchoPage === 'function') openEchoPage(event.state.echoData, false);
+        } 
+        else {
+            loadModule(mod, false);
         }
     } else {
-        loadModule('home', false);
+        const hash = window.location.hash.replace('#', '');
+        if (hash.startsWith('char_')) loadModule('characters', false);
+        else if (hash.startsWith('wp_')) loadModule('weapons', false);
+        else if (hash.startsWith('echo_')) loadModule('echoes', false);
+        else if (hash) loadModule(hash, false);
     }
 });
 
-window.onload = () => {
-    if (window.history.state && window.history.state.module === 'char_detail' && window.history.state.charData) {
-        openCharPage(window.history.state.charData, false);
-        return;
-    }
-    if (window.history.state && window.history.state.module === 'weapon_detail' && window.history.state.weaponData) {
-        openWeaponPage(window.history.state.weaponData, false);
-        return;
-    }
+function showFavoriteLoginModal() {
+    const modal = document.getElementById('favorite-login-modal');
 
-    const hash = window.location.hash.replace('#', '');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
 
-    if (hash.startsWith('char_')) {
-        loadModule('characters', false);
-        window.history.replaceState({ module: 'characters' }, "", "#characters");
-    } 
-    else if (hash.startsWith('wp_')) {
-        loadModule('weapons', false);
-        window.history.replaceState({ module: 'weapons' }, "", "#weapons");
+function closeFavoriteLoginModal() {
+    const modal = document.getElementById('favorite-login-modal');
+
+    if (modal) {
+        modal.style.display = 'none';
     }
-    else if (hash) {
-        loadModule(hash, false); 
-        window.history.replaceState({ module: hash }, "", "#" + hash);
-    } 
-    else {
-        loadModule('home', false);
-        window.history.replaceState({ module: 'home' }, "", "#home");
+}
+
+function goToSignIn()
+{
+    window.location.replace("signin.html");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const hash = window.location.hash.replace("#", "");
+
+    if (hash) {
+        loadModule(hash, false);
+    } else {
+        loadModule("home", false);
     }
-};
+});

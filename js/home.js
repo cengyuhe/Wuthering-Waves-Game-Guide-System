@@ -2,8 +2,6 @@ const dashboardButtons = [
     { name: "Characters", icon: "home_characters.png", module: "characters" },
     { name: "Echoes", icon: "home_echoes.png", module: "echoes" },
     { name: "Weapons", icon: "home_weapons.png", module: "weapons" },
-    { name: "Items", icon: "home_items.png", module: "items" },
-    { name: "Map", icon: "home_map.png", module: "map" },
 ];
 
 function initHomeModule() {
@@ -13,7 +11,9 @@ function initHomeModule() {
         <div class="home-container">
             <div class="home-hero-section">
                 <h1 class="home-title">Wuthering Waves <span>Database & Wiki</span></h1>
-                <p class="home-subtitle">The most comprehensive Wuthering Waves database and wiki with all informations on characters and their builds, echos, items, weapons, and map.</p>
+                <p class="home-subtitle">
+                The most comprehensive Wuthering Waves Game Guide System on characters, builds,weapons and echoes.
+                </p>
                 <div class="home-grid">
     `;
 
@@ -28,7 +28,8 @@ function initHomeModule() {
 
     html += `
                 </div>
-            </div> </div>
+            </div>
+        </div>
     `;
     
     display.innerHTML = html;

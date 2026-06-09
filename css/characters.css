@@ -189,23 +189,25 @@
     font-size: 0.6em;
 }
 
-.detail-tags {
-    display: flex;
-    gap: 10px;
-    align-items: center; 
-}
-
-.tag {
-    padding: 6px 14px;
+.detail-badge {
+    background: rgba(0, 0, 0, 0.3);
+    color: #ffcc00;
+    padding: 6px 16px;
     border-radius: 20px;
-    font-size: 0.9em;
-    font-weight: 600;
-    border: 1px solid #3d444d;
-    background-color: transparent; 
-    color: #e0e0e0;
+    font-size: 1em;
+    font-weight: bold;
+    border: 2px solid #44475a;
     display: flex;
     align-items: center;
-    gap: 6px; 
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.detail-badge img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));
 }
 
 .tag-icon {
@@ -374,14 +376,14 @@
     text-align: justify; 
 }
 
-.detail-rec-weapons-section, .detail-rec-echoes-section {
+.detail-rec-weapons-section, .detail-rec-echoes-section, .detail-team-section {
     margin-top: 20px;
     background-color: #2b2f36;
     border-radius: 10px;
     padding: 20px;
 }
 
-.detail-rec-weapons-section h3, .detail-rec-echoes-section h3 {
+.detail-rec-weapons-section h3, .detail-rec-echoes-section h3, .detail-team-section h3 {
     color: #ffffff;
     font-size: 1.1em;
     margin-top: 0;
@@ -455,6 +457,81 @@
     justify-content: center;
 }
 
+/* ========================================= */
+/* --- 队伍推荐样式 (Team Synergy) 升级版 --- */
+/* ========================================= */
+.team-list {
+    display: flex;
+    gap: 30px; /* 增大间距，给右侧的 alternative 标签留空间 */
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: wrap; 
+}
+
+.teammate-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    width: 105px; 
+}
+
+.teammate-card:hover {
+    transform: translateY(-5px);
+}
+
+.tm-icon-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.tm-icon-wrapper img {
+    width: 95px; 
+    height: 95px;
+    border-radius: 50%;
+    border: 2px solid #4a5462;
+    object-fit: cover;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+    background: #1c2025;
+}
+
+.teammate-card:hover .tm-icon-wrapper img {
+    border-color: #ffcc00;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+}
+
+/* 完美复刻截图的 Alternative 备选角标 */
+.tm-alt-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px; /* 挂在圆形右上角 */
+    background-color: #ffcc00;
+    color: #1c2025;
+    font-size: 0.75em;
+    font-weight: 900;
+    padding: 3px 10px;
+    border-radius: 12px;
+    z-index: 2;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.teammate-card span {
+    color: #cfd6dc;
+    font-size: 0.95em; 
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+    transition: color 0.2s ease;
+}
+
+.teammate-card:hover span {
+    color: #ffcc00;
+}
+
 .wp-color-5 { color: #ffcc00 !important; }
 .wp-color-4 { color: #a335ee !important; }
 .wp-color-3 { color: #0070dd !important; }
@@ -469,21 +546,6 @@
 
 .build-row:last-child {
     margin-bottom: 0;
-}
-
-.build-title {
-    color: #ffcc00;
-    font-size: 1.05em;
-    font-weight: bold;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-}
-
-.build-title::before {
-    content: "■";
-    margin-right: 8px;
-    font-size: 0.8em;
 }
 
 .echo-lineup {
@@ -620,39 +682,446 @@
     margin-bottom: 0;
 }
 
-.best-stats-container {
-    margin-top: 20px;
-    background: #1c2025; 
-    border-radius: 8px; 
-    padding: 20px;
+.rec-stats-container {
+    margin-top: 30px;
+    background: #1c2025;
+    border-radius: 10px;
+    padding: 30px 35px;
     border: 1px solid #3d444d;
 }
 
-.best-stats-title {
+.rec-stats-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #cfd6dc;
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #3d444d;
+    padding-bottom: 20px;
+}
+
+.rec-stats-thead {
+    display: flex;
+    justify-content: space-between;
     color: #ffffff;
     font-weight: bold;
-    margin-bottom: 15px;
+    font-size: 1.1em;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3d444d;
+    margin-bottom: 10px;
+}
+
+.rec-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid #2b2f36;
+}
+
+.rec-stats-row:last-child {
+    border-bottom: none;
+}
+
+.rec-stats-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #ffffff;
+    font-weight: 600;
     font-size: 1.1em;
 }
 
-.best-stats-tags {
+.rec-stats-left img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.rec-stats-right {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1.1em;
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
 }
 
-.stat-badge {
-    background: #2b2f36;
-    border: 1px solid #4a5462;
-    color: #e0e0e0;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.9em;
-    font-weight: 600;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: border-color 0.2s;
+/* ========================================= */
+/* --- 终极视觉：角色技能布局 (左右分栏) --- */
+/* ========================================= */
+.char-skills-container {
+    margin-top: 30px;
+    background: #1c2025;
+    border-radius: 10px;
+    padding: 30px 35px 50px 35px; 
+    border: 1px solid #3d444d;
 }
 
-.stat-badge:hover {
+.char-skills-top {
+    color: #cfd6dc;
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #3d444d;
+    padding-bottom: 20px;
+}
+
+.char-skills-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.char-skills-arc-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 450px;
+    max-width: 600px;
+    height: 290px;
+    margin: 30px 0 0 0;
+}
+
+.char-skills-inherent-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    min-width: 200px;
+    padding-top: 30px;
+}
+
+.skill-arc-line {
+    position: absolute;
+    top: 60px;
+    left: 5%;
+    width: 90%;
+    height: 400px; 
+    border-radius: 50%;
+    border-top: 3px solid #3d444d;
+    z-index: 1;
+}
+
+.skill-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    width: 100px;
+    transition: all 0.3s ease;
+}
+
+.arc-node {
+    position: absolute;
+    z-index: 2;
+    transform: translateX(-50%); 
+}
+
+.node-normal { top: 150px; left: 10%; }
+.node-resonance { top: 50px; left: 30%; }
+.node-forte { top: -10px; left: 50%; }
+.node-liberation { top: 50px; left: 70%; }
+.node-intro { top: 150px; left: 90%; }
+.node-outro { top: 210px; left: 50%; } 
+
+.arc-node:hover { transform: translate(-50%, -5px); }
+.node-inherent:hover { transform: translateY(-5px); }
+
+.skill-node-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #f5eedc; 
+    border: 3px solid #c8b492; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.node-inherent .skill-node-circle {
+    background: #2b2f36; 
+    border-color: #4a5462;
+}
+.node-inherent:hover .skill-node-circle {
     border-color: #ffcc00;
+}
+
+.arc-node .skill-node-circle img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    filter: brightness(0) drop-shadow(0px 2px 2px rgba(0,0,0,0.3)); 
+}
+.node-inherent .skill-node-circle img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); 
+}
+
+.skill-node:hover .skill-node-circle {
+    border-color: #ffffff;
+    box-shadow: 0 0 20px rgba(245, 238, 220, 0.4);
+}
+
+.skill-node:hover .skill-node-label {
+    color: #ffffff;
+}
+
+.skill-level-badge {
+    position: absolute;
+    bottom: -8px;
+    background: #2b251b;
+    color: #e5cd9e;
+    font-size: 0.75em;
+    font-weight: 800;
+    padding: 3px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.skill-node-label {
+    margin-top: 20px;
+    color: #cfd6dc;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+}
+
+/* --- 技能模态框 (Skill Modal Popup) --- */
+.skill-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.skill-modal-box {
+    background: #1c2025;
+    border: 1px solid #4a5462;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 550px;
+    height: 420px; 
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.skill-modal-close {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 32px;
+    height: 32px;
+    background: #2b2f36;
+    border: 2px solid #7b848d; 
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease; 
+    z-index: 10;
+    line-height: 0; 
+    padding-bottom: 2px; 
+    box-sizing: border-box;
+}
+
+.skill-modal-close:hover {
+    background: #4a5462; 
+    color: #ffffff;
+}
+
+.skill-modal-header {
+    background: #2b2f36;
+    padding: 25px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom: 2px solid #3d444d;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0; 
+}
+
+.skill-modal-icon-ring {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: #1c2025; 
+    border: 2px solid #7b848d; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.skill-modal-icon-ring img {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); 
+}
+
+.skill-modal-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.skill-modal-title-group h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.6em;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.skill-modal-title-group span {
+    color: #ffcc00;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.skill-modal-body {
+    padding: 30px 25px;
+    overflow-y: auto;
+    color: #cfd6dc;
+    font-size: 1.05em;
+    line-height: 1.8;
+    flex-grow: 1; 
+    align-content: flex-start; 
+}
+
+.skill-modal-body::-webkit-scrollbar { width: 6px; }
+.skill-modal-body::-webkit-scrollbar-track { background: #1c2025; }
+.skill-modal-body::-webkit-scrollbar-thumb { background: #4a5462; border-radius: 3px; }
+
+.skill-desc b, 
+.skill-desc strong,
+.skill-modal-body b,
+.skill-modal-body strong {
+    color: #ffcc00;
+    font-weight: 800;
+}
+
+.hl-havoc { color: #b973ff; font-weight: bold; }
+.hl-spectro { color: #ffe600; font-weight: bold; }
+.hl-aero { color: #42ffb0; font-weight: bold; }
+.hl-glacio { color: #5bc3ff; font-weight: bold; }
+.hl-electro { color: #c488ff; font-weight: bold; }
+.hl-fusion { color: #ff5722; font-weight: bold; }
+.hl-blue { color: #82a5ff; font-weight: bold; }
+
+/* ========================================= */
+/* --- 角色共鸣链 (Resonance Chain) --- */
+/* ========================================= */
+.char-rc-container {
+    margin-top: 30px;
+    background: #1c2025;
+    border-radius: 10px;
+    padding: 30px 35px;
+    border: 1px solid #3d444d;
+}
+
+.char-rc-top {
+    color: #cfd6dc;
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #3d444d;
+    padding-bottom: 20px;
+}
+
+.rc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rc-card {
+    background: #252a36; 
+    border: 1px solid #3b4254;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.rc-card:hover {
+    border-color: #ffcc00;
+    transform: translateX(5px);
+}
+
+.rc-icon-ring {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #1c2025;
+    border: 2px solid #7b848d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.rc-icon-ring img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.rc-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rc-title {
+    color: #ffffff;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.rc-desc {
+    color: #cfd6dc;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.rc-desc b, .rc-desc strong {
+    color: #ffcc00;
+    font-weight: bold;
 }

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Verify Code</title>
+
+    <link rel="stylesheet"
+      href="../css/forgot_password.css">
+
+<link rel="stylesheet"
+      href="../css/verify_code.css">
+</head>
+
+<body class="auth-body">
+
+<div class="auth-container">
+
+    <h2>Email Verification</h2>
+
+    <p class="auth-subtitle">
+        Enter the verification code sent to your email.
+    </p>
+
+    <form onsubmit="verifyCode(event)">
+
+        <label>
+            Verification Code
+        </label>
+
+        <input
+            type="text"
+            id="verifyCodeInput"
+            placeholder="Enter 6-digit code"
+            maxlength="6"
+            required>
+
+        <button
+            type="submit"
+            class="auth-btn">
+            Verify
+        </button>
+
+    </form>
+
+    <div
+        style="margin-top:20px;
+               text-align:center;">
+
+        <p class="verify-timer">
+            Code expires in:
+            <span id="timer">60</span>
+            seconds
+        </p>
+
+        <button
+            id="resendBtn"
+            class="auth-btn secondary-btn"
+            onclick="resendCode()"
+            disabled>
+            Resend Code
+        </button>
+
+    </div>
+
+    <div class="auth-footer-text">
+
+        Wrong email?
+
+        <a href="forgot_password.html">
+            Go Back
+        </a>
+
+    </div>
+
+</div>
+
+<script src="../js/verify_code.js"></script>
+
+</body>
+</html>

@@ -1,10 +1,11 @@
 let activeSonataEffect = 'All';
 let sonataDatabase = {};
 
-function initEchoesModule() {
-    setupEchoControls();
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) mainContent.scrollTop = 0;
+function ensureEchoCachesLoaded(callback) {
+    if (Object.keys(sonataDatabase).length > 0) {
+        callback();
+        return;
+    }
     
     fetch(`../php/api.php?action=get_sonatas`)
         .then(res => res.json())
@@ -25,9 +26,19 @@ function initEchoesModule() {
                 }
                 sonataDatabase[sonata.name.trim()] = html; 
             });
-            fetchEchoes();
+            callback();
         })
-        .catch(err => fetchEchoes());
+        .catch(err => callback());
+}
+
+function initEchoesModule() {
+    setupEchoControls();
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.scrollTop = 0;
+    
+    ensureEchoCachesLoaded(() => {
+        fetchEchoes();
+    });
 }
 
 function setupEchoControls() {
@@ -64,25 +75,6 @@ function setupEchoControls() {
                 <button class="sonata-btn" onclick="setSonataFilter('Celestial Light', this)" title="Celestial Light"><img src="../images/sonata_celestial_light.png" onerror="this.style.display='none'"></button>
                 <button class="sonata-btn" onclick="setSonataFilter('Havoc Eclipse', this)" title="Havoc Eclipse"><img src="../images/sonata_havoc_eclipse.png" onerror="this.style.display='none'"></button>
                 <button class="sonata-btn" onclick="setSonataFilter('Freezing Frost', this)" title="Freezing Frost"><img src="../images/sonata_freezing_frost.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Frosty Resolve', this)" title="Frosty Resolve"><img src="../images/sonata_frosty_resolve.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Empyrean Anthem', this)" title="Empyrean Anthem"><img src="../images/sonata_empyrean_anthem.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Midnight Veil', this)" title="Midnight Veil"><img src="../images/sonata_midnight_veil.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Eternal Radiance', this)" title="Eternal Radiance"><img src="../images/sonata_eternal_radiance.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Tidebreaking Courage', this)" title="Tidebreaking Courage"><img src="../images/sonata_tidebreaking_courage.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Dream of the Lost', this)" title="Dream of the Lost"><img src="../images/sonata_dream_of_the_lost.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Flamewing\\'s Shadow', this)" title="Flamewing's Shadow"><img src="../images/sonata_flamewing_s_shadow.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Thread of Severed Fate', this)" title="Thread of Severed Fate"><img src="../images/sonata_thread_of_severed_fate.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Law of Harmony', this)" title="Law of Harmony"><img src="../images/sonata_law_of_harmony.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Crown of Valor', this)" title="Crown of Valor"><img src="../images/sonata_crown_of_valor.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Gusts of Welkin', this)" title="Gusts of Welkin"><img src="../images/sonata_gusts_of_welkin.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Flaming Clawprint', this)" title="Flaming Clawprint"><img src="../images/sonata_flaming_clawprint.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Windward Pilgrimage', this)" title="Windward Pilgrimage"><img src="../images/sonata_windward_pilgrimage.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Halo of Starry Radiance', this)" title="Halo of Starry Radiance"><img src="../images/sonata_halo_of_starry_radiance.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Chromatic Foam', this)" title="Chromatic Foam"><img src="../images/sonata_chromatic_foam.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Pact of Neonlight Leap', this)" title="Pact of Neonlight Leap"><img src="../images/sonata_pact_of_neonlight_leap.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Rite of Gilded Revelation', this)" title="Rite of Gilded Revelation"><img src="../images/sonata_rite_of_gilded_revelation.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Sound of True Name', this)" title="Sound of True Name"><img src="../images/sonata_sound_of_true_name.png" onerror="this.style.display='none'"></button>
-                <button class="sonata-btn" onclick="setSonataFilter('Trailblazing Star', this)" title="Trailblazing Star"><img src="../images/sonata_trailblazing_star.png" onerror="this.style.display='none'"></button>
             </div>
         </div>
         <div id='echo-grid'></div>
@@ -152,6 +144,12 @@ function fetchEchoes(search = '', cost = 'All', sonata = 'All') {
 }
 
 function openEchoPage(echo, updateHistory = true) {
+    ensureEchoCachesLoaded(() => {
+        renderEchoPage(echo, updateHistory);
+    });
+}
+
+function renderEchoPage(echo, updateHistory) {
     if (updateHistory) {
         const safeName = echo.name.toLowerCase().replace(/[\s\W]+/g, '_');
         window.history.pushState({ module: 'echo_detail', echoData: echo }, "", "#echo_" + safeName);
@@ -205,12 +203,23 @@ function openEchoPage(echo, updateHistory = true) {
                 </div>
                 <div class="echo-detail-right">
                     <div class="echo-detail-title-row">
-                        <h1>${echo.name}</h1>
-                        <div class="echo-detail-cost-badge">${echo.cost} COST</div>
-                    </div>
+
+    <div style="display:flex; align-items:center; gap:12px;">
+        <h1>${echo.name}</h1>
+        <div class="echo-detail-cost-badge">${echo.cost} COST</div>
+    </div>
+
+    <button id="fav-btn-echo-${echo.id}"
+            class="favorite-btn"
+            onclick="toggleFavoriteItem('echo', ${echo.id}, 'fav-btn-echo-${echo.id}')"
+            title="Favorite">
+        🤍
+    </button>
+
+</div>
                     <div class="echo-detail-section">
                         <h3>Echo Ability</h3>
-                        <div class="echo-desc-text">
+                        <div class="echo-desc-text"> 
                             ${descText.replace(/\n/g, '<br>')}
                         </div>
                     </div>
@@ -225,9 +234,13 @@ function openEchoPage(echo, updateHistory = true) {
         </div>
     `;
 
-    // 🌟🌟 终极滚动修复：精准锁定 CSS 中的 .main-content 滚动容器！
     const mainContent = document.querySelector('.main-content');
+    
     if (mainContent) {
         mainContent.scrollTop = 0;
     }
+    
+    if (typeof checkFavoriteUI === 'function') {
+    checkFavoriteUI('echo', echo.id, `fav-btn-echo-${echo.id}`);
+}
 }

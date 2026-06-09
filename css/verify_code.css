@@ -1,0 +1,19 @@
+.verify-timer {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+#timer {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+#timer.expired {
+    color: #ff6b6b;
+}
+
+#timer {
+    color: #ffffff;
+    font-weight: bold;
+}

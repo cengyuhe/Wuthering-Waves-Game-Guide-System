@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wuthering Waves Guide System</title>
+    <title>Wuthering Waves Game Guide System</title>
     
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/components.css">
@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../css/characters.css">
     <link rel="stylesheet" href="../css/weapons.css">
     <link rel="stylesheet" href="../css/echoes.css">
+    <link rel="stylesheet" href="../css/signin.css">
+    <link rel="stylesheet" href="../css/favorites.css">
 </head>
 <body>
 
@@ -20,7 +22,18 @@
             <li onclick="loadModule('characters')">Characters</li>
             <li onclick="loadModule('weapons')">Weapons</li>
             <li onclick="loadModule('echoes')">Echoes</li>
-            <li onclick="loadModule('map')">Map</li>
+
+            <li id="favoriteBtn" style="display:none" onclick="loadModule('favorites')">
+                My Favorites
+            </li>
+
+            <li id="signinBtn" onclick="window.location.href='signin.html'">
+                Sign In
+            </li>
+
+            <li id="logoutBtn" style="display:none" onclick="logoutUser()">
+                Logout
+            </li>
         </ul>
     </nav>
 
@@ -37,17 +50,49 @@
 
     <div id="detailModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div id="modalBody" class="modal-body-layout">
-            </div>
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <div id="modalBody" class="modal-body-layout"></div>
         </div>
     </div>
+
+    <div id="favorite-login-modal" class="fav-login-modal">
+    <div class="fav-login-box">
+
+        <button class="fav-login-close"
+                onclick="closeFavoriteLoginModal()">
+            ×
+        </button>
+
+        <h2>Login Required</h2>
+
+        <p>
+            Please Sign In to save your favorites.
+        </p>
+
+        <div class="fav-login-actions">
+
+            <button class="fav-login-cancel"
+                    onclick="closeFavoriteLoginModal()">
+                Maybe Later
+            </button>
+
+            <button class="fav-login-confirm"
+                    onclick="goToSignIn()">
+                Sign In
+            </button>
+
+        </div>
+
+    </div>
+</div>
 
     <script src="../js/main.js"></script>
     <script src="../js/home.js"></script>
     <script src="../js/characters.js"></script>
     <script src="../js/weapons.js"></script>
     <script src="../js/echoes.js"></script>
+    <script src="../js/signin.js"></script>
+    <script src="../js/favorites.js"></script>
 
 </body>
 </html>

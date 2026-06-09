@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Wuthering Waves Game Guide System</title>
+    <link rel="stylesheet" href="../css/signin.css">
+</head>
+<body class="auth-body">
+
+    <a href="index.html" class="back-home-btn">← Back to Home</a>
+
+    <div class="auth-container">
+        
+        <div class="auth-header">
+            <h2>Wuthering Waves <span>Guide</span></h2>
+        </div>
+
+        <div id="view-signin" class="auth-view active">
+            <h3 class="auth-title">Welcome Back</h3>
+            <p class="auth-subtitle">Log in to your account to continue</p>
+            
+            <form id="form-signin" onsubmit="loginUser(event)">
+                <div class="auth-input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="auth-input-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+
+                <div class="login-options-row">
+
+                    <label class="remember-label">
+                        <input type="checkbox" id="rememberMe">
+                        Remember Me
+                    </label>
+
+                    <a href="forgot_password.html" class="forgot-link">
+                        Forgot Password?
+                    </a>
+
+                </div>
+
+                <button type="submit" class="auth-btn">Sign In</button>
+            </form>
+            
+            <div class="auth-footer-text">
+                Don't have an account? <span onclick="switchAuthView('signup')">Register now</span>
+            </div>
+        </div>
+
+        <div id="view-signup" class="auth-view">
+            <h3 class="auth-title">Create Account</h3>
+            <p class="auth-subtitle">Join us to explore the database</p>
+            
+            <form id="form-signup" onsubmit="registerUser(event)">
+                <div class="auth-input-group">
+                    <label>Username</label>
+                    <input type="text" id="registerUsername" placeholder="Choose a username" required>
+                </div>
+                <div class="auth-input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="auth-input-group">
+    <label>Password</label>
+    <input
+        type="password"
+        id="registerPassword"
+        placeholder="Enter password"
+        required>
+</div>
+
+<div class="auth-input-group">
+    <label>Confirm Password</label>
+
+    <input
+        type="password"
+        id="confirmPassword"
+        placeholder="Confirm password"
+        required>
+
+    <small
+        id="passwordMatchMessage"
+        style="
+            display:block;
+            margin-top:5px;
+            font-size:12px;
+        ">
+    </small>
+</div>
+                
+                <button type="submit" class="auth-btn">Register</button>
+            </form>
+            
+            <div class="auth-footer-text">
+                Already have an account? <span onclick="switchAuthView('signin')">Sign in instead</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../js/signin.js"></script>
+</body>
+</html>

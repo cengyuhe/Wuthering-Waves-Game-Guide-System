@@ -34,7 +34,7 @@ if ($action == 'get_characters') {
         $rar = $conn->real_escape_string($rarity);
         $sql .= " AND rarity = '$rar'";
     }
-    // 🌟 核心修复点：让数据库同时放过 'Any' 和 'All'
+
     if (!empty($weapon) && $weapon !== 'Any' && $weapon !== 'All') {
         $weap = $conn->real_escape_string($weapon);
         $sql .= " AND weapon = '$weap'";
@@ -49,7 +49,7 @@ if ($action == 'get_characters') {
 if ($action == 'get_weapons') {
     $search = isset($_GET['search']) ? $_GET['search'] : '';
     $type = isset($_GET['type']) ? $_GET['type'] : '';
-    $rarity = isset($_GET['rarity']) ? $_GET['rarity'] : ''; // 🌟 新增
+    $rarity = isset($_GET['rarity']) ? $_GET['rarity'] : '';
 
     $sql = "SELECT * FROM weapons WHERE 1=1";
     
@@ -61,7 +61,7 @@ if ($action == 'get_weapons') {
         $type_str = $conn->real_escape_string($type);
         $sql .= " AND type = '$type_str'";
     }
-    // 🌟 增加星级过滤逻辑
+
     if (!empty($rarity) && $rarity !== 'All') {
         $rar = $conn->real_escape_string($rarity);
         $sql .= " AND rarity = '$rar'";

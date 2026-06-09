@@ -2,13 +2,32 @@ let activeElement = '';
 let cachedWeapons = {}; 
 let cachedEchoes = {};
 let cachedSonatas = {};
+let cachedAllCharacters = [];
 
 const normalizeName = (name) => {
     return name ? name.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
 };
 
+const getStatIcon = (statName) => {
+    const s = statName.toLowerCase();
+    if (s.includes('crit. rate') || s.includes('crit rate')) return 'stat_crit_rate.png';
+    if (s.includes('crit. dmg') || s.includes('crit dmg')) return 'stat_crit_dmg.png';
+    if (s.includes('energy regen') || s.includes('er')) return 'stat_energy_regen.png';
+    if (s.includes('atk')) return 'stat_atk.png';
+    if (s.includes('def')) return 'stat_def.png';
+    if (s.includes('hp')) return 'stat_hp.png';
+    if (s.includes('aero')) return 'ele_aero.png';
+    if (s.includes('glacio')) return 'ele_glacio.png';
+    if (s.includes('electro')) return 'ele_electro.png';
+    if (s.includes('fusion')) return 'ele_fusion.png';
+    if (s.includes('havoc')) return 'ele_havoc.png';
+    if (s.includes('spectro')) return 'ele_spectro.png';
+    if (s.includes('healing')) return 'stat_hp.png'; 
+    return 'default.jpg';
+};
+
 function ensureCachesLoaded(callback) {
-    if (Object.keys(cachedWeapons).length > 0 && Object.keys(cachedEchoes).length > 0) {
+    if (Object.keys(cachedWeapons).length > 0 && Object.keys(cachedEchoes).length > 0 && cachedAllCharacters.length > 0) {
         callback();
         return;
     }
@@ -16,9 +35,10 @@ function ensureCachesLoaded(callback) {
     Promise.all([
         fetch(`../php/api.php?action=get_weapons`).then(res => res.json()),
         fetch(`../php/api.php?action=get_echoes`).then(res => res.json()),
-        fetch(`../php/api.php?action=get_sonatas`).then(res => res.json())
+        fetch(`../php/api.php?action=get_sonatas`).then(res => res.json()),
+        fetch(`../php/api.php?action=get_characters&search=&element=&rarity=All&weapon=Any`).then(res => res.json())
     ])
-    .then(([weaponsData, echoesData, sonatasData]) => {
+    .then(([weaponsData, echoesData, sonatasData, charsData]) => {
         cachedWeapons = {};
         weaponsData.forEach(w => { cachedWeapons[normalizeName(w.name)] = w; });
         
@@ -27,6 +47,8 @@ function ensureCachesLoaded(callback) {
         
         cachedSonatas = {};
         sonatasData.forEach(s => { cachedSonatas[normalizeName(s.name)] = s; });
+        
+        cachedAllCharacters = charsData || [];
         
         callback();
     })
@@ -37,10 +59,7 @@ function initCharactersModule() {
     setupCharacterControls();
     const mainContent = document.querySelector('.main-content');
     if (mainContent) mainContent.scrollTop = 0;
-    
-    ensureCachesLoaded(() => {
-        fetchChars();
-    });
+    ensureCachesLoaded(() => { fetchChars(); });
 }
 
 function setupCharacterControls() {
@@ -161,7 +180,6 @@ function generateEchoBuildHtml(buildName, echoName, sonataStr) {
 
     const renderSlot = (cost, isSpecific, name, sName, img, jData) => {
         const sImgHtml = sName !== 'Various' ? `<div class="echo-sonata-mini"><img src="../images/${formatSonataImg(sName)}" onerror="this.style.display='none'"></div>` : '';
-        
         if (isSpecific) {
             return `
                 <div class="echo-slot ${jData !== 'null' ? 'clickable' : ''}" ${jData !== 'null' ? `onclick="goToEchoDetail(${jData})"` : ''}>
@@ -193,42 +211,20 @@ function generateEchoBuildHtml(buildName, echoName, sonataStr) {
         const s2Data = cachedSonatas[normalizeName(s2)];
         const desc1 = s1Data && s1Data.tier1_desc ? s1Data.tier1_desc : '2-Pc effect to be updated.';
         const desc2 = s2Data && s2Data.tier1_desc ? s2Data.tier1_desc : '2-Pc effect to be updated.';
-        setInfoHtml = `
-            <div class="sonata-info-box">
-                <div style="margin-bottom: 5px;"><strong>Mixed Set (2+2)</strong></div>
-                <ul class="sonata-desc-list">
-                    <li><strong>${s1}:</strong> ${desc1}</li>
-                    <li><strong>${s2}:</strong> ${desc2}</li>
-                </ul>
-            </div>
-        `;
+        setInfoHtml = `<div class="sonata-info-box"><div style="margin-bottom: 5px;"><strong>Mixed Set (2+2)</strong></div><ul class="sonata-desc-list"><li><strong>${s1}:</strong> ${desc1}</li><li><strong>${s2}:</strong> ${desc2}</li></ul></div>`;
     } else if (s1 !== 'Various') {
         const sData = cachedSonatas[normalizeName(s1)];
         const desc1 = sData && sData.tier1_desc ? sData.tier1_desc : '2-Pc effect to be updated.';
         const desc2 = sData && sData.tier2_desc ? sData.tier2_desc : '5-Pc effect to be updated.';
-        setInfoHtml = `
-            <div class="sonata-info-box">
-                <div style="margin-bottom: 5px;"><strong>${s1}</strong></div>
-                <ul class="sonata-desc-list">
-                    <li>${desc1}</li>
-                    <li>${desc2}</li>
-                </ul>
-            </div>
-        `;
+        setInfoHtml = `<div class="sonata-info-box"><div style="margin-bottom: 5px;"><strong>${s1}</strong></div><ul class="sonata-desc-list"><li>${desc1}</li><li>${desc2}</li></ul></div>`;
     } else {
-        setInfoHtml = `
-            <div class="sonata-info-box" style="text-align:center;">
-                <strong>Set Effect:</strong> Flexible / Any
-            </div>
-        `;
+        setInfoHtml = `<div class="sonata-info-box" style="text-align:center;"><strong>Set Effect:</strong> Flexible / Any</div>`;
     }
 
     const plusHtml = `<div style="color: #7b848d; font-size: 1.8em; font-weight: bold; padding-top: 22px;">+</div>`;
 
     return `
         <div class="build-row">
-            <div class="build-title">${buildName || 'Standard Build'}</div>
-            
             <div class="echo-lineup">
                 ${renderSlot(4, true, echoName, s1, eImg, jEcho)}
                 ${plusHtml}
@@ -240,11 +236,28 @@ function generateEchoBuildHtml(buildName, echoName, sonataStr) {
                 ${plusHtml}
                 ${renderSlot(1, false, '', s1, '', 'null')}
             </div>
-            
             ${setInfoHtml}
         </div>
     `;
 }
+
+window.openCharSkillModal = function(skillKey) {
+    if (!window.currentCharacterSkills) return;
+    const data = window.currentCharacterSkills[skillKey];
+    if (!data) return;
+    const iconImg = document.getElementById('sm-icon');
+    iconImg.src = '../images/' + data.icon;
+    iconImg.style.display = 'block'; 
+    document.getElementById('sm-name').innerHTML = data.name;
+    document.getElementById('sm-type').innerText = data.type;
+    document.getElementById('sm-desc').innerHTML = data.desc.replace(/\n/g, '<br>');
+    document.getElementById('skill-modal-overlay').style.display = 'flex';
+};
+
+window.closeCharSkillModal = function(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('skill-modal-overlay').style.display = 'none';
+};
 
 function openCharPage(char, updateHistory = true) {
     ensureCachesLoaded(() => {
@@ -272,7 +285,7 @@ function renderCharPage(char, updateHistory) {
     else if (char.name === "Rover (Aero)") elementForImg = "Aero";
     const elementImgName = 'ele_' + (elementForImg ? elementForImg.toLowerCase() : 'unknown') + '.png';
 
-    const mat1Name = char.mat_1 || "Our Choice";
+    const mat1Name = char.name.includes("Rover") ? "Mysterious Code" : (char.mat_1 || "Our Choice");
     const mat2Name = char.mat_2 || "Arithmetic Shell";
     const t1Name = char.mat_3_tier1 || "Tier 1 Material";
     const t2Name = char.mat_3_tier2 || "Tier 2 Material";
@@ -295,57 +308,153 @@ function renderCharPage(char, updateHistory) {
     const recWp1 = char.rec_wp_1 || "Signature Weapon";
     const recWp2 = char.rec_wp_2 || "Standard 5-Star";
     const recWp3 = char.rec_wp_3 || "Best 4-Star Option";
-
     const w1 = cachedWeapons[normalizeName(recWp1)];
     const w2 = cachedWeapons[normalizeName(recWp2)];
     const w3 = cachedWeapons[normalizeName(recWp3)];
-
     const formatFallbackWpImg = (name) => name.toLowerCase().trim().replace(/[\s\W]+/g, '_') + '.jpg';
-
     const img1 = w1 ? `../images/${w1.image_url}` : `../images/${formatFallbackWpImg(recWp1)}`;
     const img2 = w2 ? `../images/${w2.image_url}` : `../images/${formatFallbackWpImg(recWp2)}`;
     const img3 = w3 ? `../images/${w3.image_url}` : `../images/${formatFallbackWpImg(recWp3)}`;
-
     const c1Class = w1 ? `wp-color-${w1.rarity}` : '';
     const c2Class = w2 ? `wp-color-${w2.rarity}` : '';
     const c3Class = w3 ? `wp-color-${w3.rarity}` : '';
-
     const j1 = w1 ? JSON.stringify(w1).replace(/"/g, '&quot;') : 'null';
     const j2 = w2 ? JSON.stringify(w2).replace(/"/g, '&quot;') : 'null';
     const j3 = w3 ? JSON.stringify(w3).replace(/"/g, '&quot;') : 'null';
 
     let buildsHtml = generateEchoBuildHtml(char.build_1_name, char.rec_echo_1, char.rec_sonata_1);
     buildsHtml += generateEchoBuildHtml(char.build_2_name, char.rec_echo_2, char.rec_sonata_2);
-
-    if (buildsHtml === '') {
-        buildsHtml = `<p style="color:#7b848d; text-align:center; margin-top:20px;">Echo builds to be updated.</p>`;
-    }
+    if (buildsHtml === '') buildsHtml = `<p style="color:#7b848d; text-align:center; margin-top:20px;">Echo builds to be updated.</p>`;
 
     let bestStatsHtml = '';
-    const bs1 = char.best_stat_1;
-    const bs2 = char.best_stat_2;
-    const bs3 = char.best_stat_3;
-    const bs4 = char.best_stat_4;
-    const bs5 = char.best_stat_5;
+    const statsArray = [char.best_stat_1, char.best_stat_2, char.best_stat_3, char.best_stat_4, char.best_stat_5].filter(Boolean);
+    if (statsArray.length > 0) {
+        let rowsHtml = '';
+        statsArray.forEach(statStr => {
+            const parts = statStr.split(/[:|]/);
+            const sName = parts[0].trim();
+            const sVal = parts.length > 1 ? parts[1].trim() : 'Priority';
+            const sIcon = getStatIcon(sName);
+            rowsHtml += `
+                <div class="rec-stats-row">
+                    <div class="rec-stats-left"><img src="../images/${sIcon}" onerror="this.style.display='none'">${sName}</div>
+                    <div class="rec-stats-right">${sVal}<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffcc00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                </div>
+            `;
+        });
+        bestStatsHtml = `<div class="rec-stats-container"><div class="rec-stats-top">Recommended Stats for ${char.name}</div><div class="rec-stats-thead"><span>Stats</span><span>Recommended</span></div><div class="rec-stats-tbody">${rowsHtml}</div></div>`;
+    }
 
-    if (bs1 || bs2 || bs3 || bs4 || bs5) {
-        let tagsHtml = '';
-        if (bs1) tagsHtml += `<span class="stat-badge">${bs1}</span>`;
-        if (bs2) tagsHtml += `<span class="stat-badge">${bs2}</span>`;
-        if (bs3) tagsHtml += `<span class="stat-badge">${bs3}</span>`;
-        if (bs4) tagsHtml += `<span class="stat-badge">${bs4}</span>`;
-        if (bs5) tagsHtml += `<span class="stat-badge">${bs5}</span>`;
+    let teamCompsHtml = '';
+    const teammateIds = [char.team_mate_1, char.team_mate_2, char.team_mate_3, char.team_mate_4].filter(id => id && id != 0 && id != 'null');
+    if (teammateIds.length > 0) {
+        let tmListHtml = '';
+        teammateIds.forEach((tmId, index) => {
+            const teammate = cachedAllCharacters.find(c => c.id == tmId);
+            if (teammate) {
+                const tmJson = JSON.stringify(teammate).replace(/"/g, '&quot;');
+                let badgeHtml = (index === 1 || index === 3) ? `<div class="tm-alt-badge">Alternative</div>` : ''; 
+                let displayIcon = (teammate.team_icon_url && teammate.team_icon_url.trim() !== '') ? teammate.team_icon_url : teammate.image_url;
+                tmListHtml += `
+                    <div class="teammate-card" onclick="openCharPage(${tmJson}, true)">
+                        <div class="tm-icon-wrapper">${badgeHtml}<img src="../images/${displayIcon}" onerror="this.src='../images/default.jpg'" alt="${teammate.name}"></div>
+                        <span>${teammate.name}</span>
+                    </div>
+                `;
+            }
+        });
+        if (tmListHtml !== '') teamCompsHtml = `<div class="detail-team-section"><h3>Recommended Teammates</h3><div class="team-list">${tmListHtml}</div></div>`;
+    }
 
-        bestStatsHtml = `
-            <div class="best-stats-container">
-                <div class="best-stats-title">Best Stats for ${char.name}</div>
-                <div class="best-stats-tags">
-                    ${tagsHtml}
+    window.currentCharacterSkills = {
+        normal: { type: 'Normal Attack', name: char.skill_normal_name || "Normal Attack", desc: char.skill_normal_desc || "To be updated.", icon: char.skill_normal_icon || 'skill_normal.png' },
+        resonance: { type: 'Resonance Skill', name: char.skill_resonance_name || "Resonance Skill", desc: char.skill_resonance_desc || "To be updated.", icon: char.skill_resonance_icon || 'skill_resonance.png' },
+        forte: { type: 'Forte Circuit', name: char.skill_forte_name || "Forte Circuit", desc: char.skill_forte_desc || "To be updated.", icon: char.skill_forte_icon || 'skill_forte.png' },
+        liberation: { type: 'Resonance Liberation', name: char.skill_liberation_name || "Resonance Liberation", desc: char.skill_liberation_desc || "To be updated.", icon: char.skill_liberation_icon || 'skill_liberation.png' },
+        intro: { type: 'Intro Skill', name: char.skill_intro_name || "Intro Skill", desc: char.skill_intro_desc || "To be updated.", icon: char.skill_intro_icon || 'skill_intro.png' },
+        outro: { type: 'Outro Skill', name: char.skill_outro_name || "Outro Skill", desc: char.skill_outro_desc || "To be updated.", icon: char.skill_outro_icon || 'skill_outro.png' },
+        inherent1: { type: 'Inherent Skill', name: char.skill_inherent1_name || "Inherent Skill 1", desc: char.skill_inherent1_desc || "To be updated.", icon: char.skill_inherent1_icon || 'skill_inherent.png' },
+        inherent2: { type: 'Inherent Skill', name: char.skill_inherent2_name || "Inherent Skill 2", desc: char.skill_inherent2_desc || "To be updated.", icon: char.skill_inherent2_icon || 'skill_inherent.png' }
+    };
+
+    const skillsHtml = `
+        <div class="char-skills-container">
+            <div class="char-skills-top">${char.name} Skills</div>
+            <div class="char-skills-body">
+                <div class="char-skills-arc-wrapper">
+                    <div class="skill-arc-line"></div>
+                    <div class="skill-node arc-node node-normal" onclick="window.openCharSkillModal('normal')">
+                        <div class="skill-node-circle"><img src="../images/${window.currentCharacterSkills.normal.icon}" onerror="this.src='../images/default.jpg'"><div class="skill-level-badge">10/10</div></div>
+                        <div class="skill-node-label">Normal Attack</div>
+                    </div>
+                    <div class="skill-node arc-node node-resonance" onclick="window.openCharSkillModal('resonance')">
+                        <div class="skill-node-circle"><img src="../images/${window.currentCharacterSkills.resonance.icon}" onerror="this.src='../images/default.jpg'"><div class="skill-level-badge">10/10</div></div>
+                        <div class="skill-node-label">Resonance Skill</div>
+                    </div>
+                    <div class="skill-node arc-node node-forte" onclick="window.openCharSkillModal('forte')">
+                        <div class="skill-node-circle"><img src="../images/${window.currentCharacterSkills.forte.icon}" onerror="this.src='../images/default.jpg'"><div class="skill-level-badge">10/10</div></div>
+                        <div class="skill-node-label">Forte Circuit</div>
+                    </div>
+                    <div class="skill-node arc-node node-liberation" onclick="window.openCharSkillModal('liberation')">
+                        <div class="skill-node-circle"><img src="../images/${window.currentCharacterSkills.liberation.icon}" onerror="this.src='../images/default.jpg'"><div class="skill-level-badge">10/10</div></div>
+                        <div class="skill-node-label">Resonance Lib.</div>
+                    </div>
+                    <div class="skill-node arc-node node-intro" onclick="window.openCharSkillModal('intro')">
+                        <div class="skill-node-circle"><img src="../images/${window.currentCharacterSkills.intro.icon}" onerror="this.src='../images/default.jpg'"></div>
+                        <div class="skill-node-label">Intro Skill</div>
+                    </div>
+                    <div class="skill-node arc-node node-outro" onclick="window.openCharSkillModal('outro')">
+                        <div class="skill-node-circle"><img src="../images/${window.currentCharacterSkills.outro.icon}" onerror="this.src='../images/default.jpg'"></div>
+                        <div class="skill-node-label">Outro Skill</div>
+                    </div>
+                </div>
+                <div class="char-skills-inherent-wrapper">
+                    <div class="skill-node node-inherent" onclick="window.openCharSkillModal('inherent1')">
+                        <div class="skill-node-circle"><img src="../images/${window.currentCharacterSkills.inherent1.icon}" onerror="this.src='../images/default.jpg'"></div>
+                        <div class="skill-node-label">Inherent Skill 1</div>
+                    </div>
+                    <div class="skill-node node-inherent" onclick="window.openCharSkillModal('inherent2')">
+                        <div class="skill-node-circle"><img src="../images/${window.currentCharacterSkills.inherent2.icon}" onerror="this.src='../images/default.jpg'"></div>
+                        <div class="skill-node-label">Inherent Skill 2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    let rcHtmlList = '';
+    for (let i = 1; i <= 6; i++) {
+        let rcName = char[`rc${i}_name`] || `Sequence Node ${i}`;
+        let rcDesc = char[`rc${i}_desc`] || `Description for Sequence Node ${i} to be updated.`;
+        let rcIcon = char[`rc${i}_icon`] || `rc_default.png`;
+        rcHtmlList += `
+            <div class="rc-card">
+                <div class="rc-icon-ring"><img src="../images/${rcIcon}" onerror="this.src='../images/default.jpg'"></div>
+                <div class="rc-info">
+                    <div class="rc-title">${rcName}</div>
+                    <div class="rc-desc">${rcDesc.replace(/\n/g, '<br>')}</div>
                 </div>
             </div>
         `;
     }
 
+    const resonanceChainHtml = `
+        <div class="char-rc-container"><div class="char-rc-top">${char.name} Resonance Chain</div><div class="rc-list">${rcHtmlList}</div></div>
+    `;
+
+    const skillModalHtml = `
+        <div id="skill-modal-overlay" class="skill-modal-overlay" onclick="window.closeCharSkillModal(event)">
+            <div class="skill-modal-box" onclick="event.stopPropagation()">
+                <div class="skill-modal-close" onclick="window.closeCharSkillModal(event)">×</div>
+                <div class="skill-modal-header">
+                    <div class="skill-modal-icon-ring"><img id="sm-icon" src="" onerror="this.style.display='none'"></div>
+                    <div class="skill-modal-title-group"><h2 id="sm-name">Skill Name</h2><span id="sm-type">Skill Type</span></div>
+                </div>
+                <div class="skill-modal-body skill-desc" id="sm-desc"></div>
+            </div>
+        </div>
+    `;
+    
     display.innerHTML = `
         <div class="char-detail-page" style="padding-top: 20px;">
             <div class="char-detail-content">
@@ -355,30 +464,34 @@ function renderCharPage(char, updateHistory) {
                     </div>
                 </div>
                 <div class="char-detail-right">
-                    <div class="detail-header">
-                        <div class="detail-title-box">
-                            <h1>${char.name} <span class="detail-stars">${stars}</span></h1>
+                    
+                    <div class="detail-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; width: 100%; margin-bottom: 25px;">
+                        
+                        <div class="detail-title-box" style="flex: 1 1 auto; min-width: 200px;">
+                            <h1 style="margin:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                ${char.name} <span class="detail-stars">${stars}</span>
+                            </h1>
                         </div>
-                        <div class="detail-tags">
-                            <span class="tag tag-weapon">
-                                <img src="../images/${weaponImgName}" class="tag-icon" onerror="this.style.display='none'">
+                        
+                        <div style="display:flex; align-items:center; gap:12px; flex-wrap: wrap; justify-content: flex-end; flex: 0 0 auto;">
+                            <span class="detail-badge">
+                                <img src="../images/${weaponImgName}" style="width:20px; height:20px; object-fit:contain;" onerror="this.style.display='none'">
                                 ${char.weapon}
                             </span>
-                            <span class="tag tag-element">
-                                <img src="../images/${elementImgName}" class="tag-icon" onerror="this.style.display='none'">
+                            <span class="detail-badge">
+                                <img src="../images/${elementImgName}" style="width:20px; height:20px; object-fit:contain;" onerror="this.style.display='none'">
                                 ${char.element}
                             </span>
+                            <button id="fav-btn-char-${char.id}" class="favorite-btn" onclick="toggleFavoriteItem('character', ${char.id}, 'fav-btn-char-${char.id}')" title="Favorite">🤍</button>
                         </div>
+
                     </div>
+                    
                     <div class="detail-level-section">
                         <div class="level-label-row">
-                            <span>Level</span>
-                            <span class="level-max" id="char-level-display">90</span>
+                            <span>Level</span><span class="level-max" id="char-level-display">90</span>
                         </div>
-                        <input type="range" min="1" max="90" value="90" class="level-slider" 
-                               data-t1="${t1Name}" data-t2="${t2Name}" data-t3="${t3Name}" data-t4="${t4Name}"
-                               data-char-name="${char.name}"
-                               oninput="updateCharLevel(this.value)">
+                        <input type="range" min="1" max="90" value="90" class="level-slider" data-t1="${t1Name}" data-t2="${t2Name}" data-t3="${t3Name}" data-t4="${t4Name}" data-char-name="${char.name}" oninput="updateCharLevel(this.value)">
                     </div>
                     <div class="detail-materials-section">
                         <h3>${char.name} Ascension Materials</h3>
@@ -390,30 +503,12 @@ function renderCharPage(char, updateHistory) {
                         </div>
                     </div>
                     <div class="detail-stats-section">
-                        <div class="stat-row">
-                            <span class="stat-label"><img src="../images/stat_hp.png" class="stat-icon" onerror="this.style.display='none'"> HP (Lv.1 / 90)</span>
-                            <span class="stat-value">${hpBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${hpMax.toLocaleString()}</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label"><img src="../images/stat_atk.png" class="stat-icon" onerror="this.style.display='none'"> ATK (Lv.1 / 90)</span>
-                            <span class="stat-value">${atkBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${atkMax.toLocaleString()}</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label"><img src="../images/stat_def.png" class="stat-icon" onerror="this.style.display='none'"> DEF (Lv.1 / 90)</span>
-                            <span class="stat-value">${defBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${defMax.toLocaleString()}</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label"><img src="../images/stat_crit_rate.png" class="stat-icon" onerror="this.style.display='none'"> Crit. Rate</span>
-                            <span class="stat-value">5%</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label"><img src="../images/stat_crit_dmg.png" class="stat-icon" onerror="this.style.display='none'"> Crit. DMG</span>
-                            <span class="stat-value">150%</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label"><img src="../images/stat_energy_regen.png" class="stat-icon" onerror="this.style.display='none'"> Energy Regen</span>
-                            <span class="stat-value">100%</span>
-                        </div>
+                        <div class="stat-row"><span class="stat-label"><img src="../images/stat_hp.png" class="stat-icon" onerror="this.style.display='none'"> HP (Lv.1 / 90)</span><span class="stat-value">${hpBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${hpMax.toLocaleString()}</span></div>
+                        <div class="stat-row"><span class="stat-label"><img src="../images/stat_atk.png" class="stat-icon" onerror="this.style.display='none'"> ATK (Lv.1 / 90)</span><span class="stat-value">${atkBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${atkMax.toLocaleString()}</span></div>
+                        <div class="stat-row"><span class="stat-label"><img src="../images/stat_def.png" class="stat-icon" onerror="this.style.display='none'"> DEF (Lv.1 / 90)</span><span class="stat-value">${defBase.toLocaleString()} <span style="color:#7b848d; font-weight:normal; margin:0 3px;">/</span> ${defMax.toLocaleString()}</span></div>
+                        <div class="stat-row"><span class="stat-label"><img src="../images/stat_crit_rate.png" class="stat-icon" onerror="this.style.display='none'"> Crit. Rate</span><span class="stat-value">5%</span></div>
+                        <div class="stat-row"><span class="stat-label"><img src="../images/stat_crit_dmg.png" class="stat-icon" onerror="this.style.display='none'"> Crit. DMG</span><span class="stat-value">150%</span></div>
+                        <div class="stat-row"><span class="stat-label"><img src="../images/stat_energy_regen.png" class="stat-icon" onerror="this.style.display='none'"> Energy Regen</span><span class="stat-value">100%</span></div>
                     </div>
                 </div> 
             </div> 
@@ -426,47 +521,34 @@ function renderCharPage(char, updateHistory) {
             <div class="detail-rec-weapons-section">
                 <h3>Recommended Weapons</h3>
                 <div class="rec-weapons-list">
-                    <div class="rec-wp-card ${w1 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j1})">
-                        <img src="${img1}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'">
-                        <div class="rec-wp-info">
-                            <span class="rec-wp-name ${c1Class}">${recWp1}</span>
-                        </div>
-                    </div>
-                    
+                    <div class="rec-wp-card ${w1 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j1})"><img src="${img1}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'"><div class="rec-wp-info"><span class="rec-wp-name ${c1Class}">${recWp1}</span></div></div>
                     <div class="rec-wp-arrow">&gt;</div>
-                    
-                    <div class="rec-wp-card ${w2 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j2})">
-                        <img src="${img2}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'">
-                        <div class="rec-wp-info">
-                            <span class="rec-wp-name ${c2Class}">${recWp2}</span>
-                        </div>
-                    </div>
-                    
+                    <div class="rec-wp-card ${w2 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j2})"><img src="${img2}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'"><div class="rec-wp-info"><span class="rec-wp-name ${c2Class}">${recWp2}</span></div></div>
                     <div class="rec-wp-arrow">&gt;</div>
-                    
-                    <div class="rec-wp-card ${w3 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j3})">
-                        <img src="${img3}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'">
-                        <div class="rec-wp-info">
-                            <span class="rec-wp-name ${c3Class}">${recWp3}</span>
-                        </div>
-                    </div>
+                    <div class="rec-wp-card ${w3 ? 'clickable' : ''}" onclick="goToWeaponDetail(${j3})"><img src="${img3}" class="rec-wp-icon" onerror="this.src='../images/default.jpg'"><div class="rec-wp-info"><span class="rec-wp-name ${c3Class}">${recWp3}</span></div></div>
                 </div>
             </div>
 
             <div class="detail-rec-echoes-section">
                 <h3>Recommended Echoes</h3>
                 ${buildsHtml}
-                ${bestStatsHtml}
             </div>
             
+            ${teamCompsHtml}
+            ${bestStatsHtml}
+            ${skillsHtml}
+            ${resonanceChainHtml}
         </div>
+        ${skillModalHtml}
     `;
     
     updateCharLevel(90);
 
     const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.scrollTop = 0;
+    if (mainContent) mainContent.scrollTop = 0;
+
+    if (typeof checkFavoriteUI === 'function') {
+        checkFavoriteUI('character', char.id, `fav-btn-char-${char.id}`);
     }
 }
 

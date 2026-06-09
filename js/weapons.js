@@ -141,10 +141,25 @@ function openWeaponPage(weapon, updateHistory = true) {
                     </div>
                 </div>
                 <div class="wp-detail-right">
-                    <div class="wp-detail-title-row">
-                        <h1>${weapon.name}</h1>
-                        <span class="wp-type-badge">${weapon.type}</span>
-                    </div>
+                    <div class="wp-detail-title-row"
+     style="display:flex;
+            justify-content:space-between;
+            align-items:center;
+            width:100%;">
+
+    <div style="display:flex; align-items:center; gap:12px;">
+        <h1>${weapon.name}</h1>
+        <span class="wp-type-badge">${weapon.type}</span>
+    </div>
+
+    <button id="fav-btn-wp-${weapon.id}"
+            class="favorite-btn"
+            onclick="toggleFavoriteItem('weapon', ${weapon.id}, 'fav-btn-wp-${weapon.id}')"
+            title="Favorite">
+        🤍
+    </button>
+
+</div>
                     <div class="wp-stats-box">
                         <div class="wp-stat-row">
                             <span class="wp-stat-label">ATK (Lv.1 / 90)</span>
@@ -212,11 +227,15 @@ function openWeaponPage(weapon, updateHistory = true) {
     updateWeaponLevel(90);
     updateWeaponRank(1);
 
-    // 🌟🌟 终极滚动修复
     const mainContent = document.querySelector('.main-content');
+    
     if (mainContent) {
         mainContent.scrollTop = 0;
     }
+    
+    if (typeof checkFavoriteUI === 'function') {
+    checkFavoriteUI('weapon', weapon.id, `fav-btn-wp-${weapon.id}`);
+}
 }
 
 function updateWeaponLevel(newLevel) {
