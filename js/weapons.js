@@ -100,8 +100,7 @@ function fetchWeapons(search = '', type = '', rarity = 'All') {
 
 function openWeaponPage(weapon, updateHistory = true) {
     if (updateHistory) {
-        const safeName = weapon.name.toLowerCase().replace(/[\s\W]+/g, '_');
-        window.history.pushState({ module: 'weapon_detail', weaponData: weapon }, "", "#wp_" + safeName);
+        window.history.pushState({ module: 'weapon_detail', weaponData: weapon },"","#wp_" + weapon.id);
     }
 
     const display = document.getElementById('module-display');

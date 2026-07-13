@@ -1,5 +1,3 @@
-let loginAttempts = 0;
-
 async function registerUser(event)
 {
     event.preventDefault();
@@ -72,7 +70,7 @@ async function registerUser(event)
 
     if(result.success)
 {
-    localStorage.setItem(
+    sessionStorage.setItem(
         "register_success",
         "1"
     );
@@ -162,10 +160,18 @@ async function logoutUser()
     window.location.replace("index.html");
 }
 
-async function checkLoginStatus()
+async function checkLoginStatus(requireLogin = false)
 {
-    try {
-        const response = await fetch("../php/signin.php?action=check_login");
+    try
+    {
+        const response = await fetch(
+            "../php/signin.php?action=check_login",
+            {
+                cache: "no-store",
+                credentials: "same-origin"
+            }
+        );
+
         const result = await response.json();
 
         const signinBtn = document.getElementById("signinBtn");
@@ -173,26 +179,38 @@ async function checkLoginStatus()
         const favoriteBtn = document.getElementById("favoriteBtn");
         const logoutBtn = document.getElementById("logoutBtn");
 
-        if (!signinBtn) return;
-
-        if(result.logged_in) {
-            signinBtn.style.display = "none";
-            if(registerBtn) registerBtn.style.display = "none";
-            favoriteBtn.style.display = "block";
-            logoutBtn.style.display = "block";
-        } else {
-            signinBtn.style.display = "block";
-
-        if(registerBtn)
+        if(result.logged_in)
         {
-            registerBtn.style.display = "block";
+            if(signinBtn) signinBtn.style.display = "none";
+            if(registerBtn) registerBtn.style.display = "none";
+            if(favoriteBtn) favoriteBtn.style.display = "block";
+            if(logoutBtn) logoutBtn.style.display = "block";
+        }
+        else
+        {
+            if(signinBtn) signinBtn.style.display = "block";
+            if(registerBtn) registerBtn.style.display = "block";
+            if(favoriteBtn) favoriteBtn.style.display = "none";
+            if(logoutBtn) logoutBtn.style.display = "none";
+
+            if(requireLogin)
+            {
+                window.location.replace("signin.html");
+            }
         }
 
-    favoriteBtn.style.display = "none";
-    logoutBtn.style.display = "none";
-}
-    } catch(error) {
+        return result.logged_in;
+    }
+    catch(error)
+    {
         console.error(error);
+
+        if(requireLogin)
+        {
+            window.location.replace("signin.html");
+        }
+
+        return false;
     }
 }
 

@@ -267,8 +267,7 @@ function openCharPage(char, updateHistory = true) {
 
 function renderCharPage(char, updateHistory) {
     if (updateHistory) {
-        const safeName = char.name.toLowerCase().replace(/[\s\W]+/g, '_');
-        window.history.pushState({ module: 'char_detail', charData: char }, "", "#char_" + safeName);
+        window.history.pushState({ module: 'char_detail', charData: char },"","#char_" + char.id);
     }
 
     const display = document.getElementById('module-display');

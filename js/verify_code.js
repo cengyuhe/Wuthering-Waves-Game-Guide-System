@@ -124,6 +124,13 @@ async function resendCode()
 
         startCountdown();
     }
+
+    const timer =
+        document.getElementById("timer");
+
+        timer.innerText = "60";
+
+        timer.classList.remove("expired");
 }
 
 window.onload = () =>

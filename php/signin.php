@@ -364,11 +364,11 @@ if($action=="forgot_password")
 
                 CURLOPT_POST =>
                     true,
-
+                
                 CURLOPT_HTTPHEADER =>
                     [
                         "accept: application/json",
-                        "api-key: ".$BREVO_API_KEY,
+                        "api-key: " . $BREVO_API_KEY,
                         "content-type: application/json"
                     ],
 
@@ -397,12 +397,14 @@ if($action=="forgot_password")
             ]);
         }
         else
-        {
-            echo json_encode([
-                "success"=>false,
-                "message"=>"Failed to send email."
-            ]);
-        }
+{
+    echo json_encode([
+        "success" => false,
+        "message" => "Failed to send email.",
+        "httpCode" => $httpCode,
+        "brevoResponse" => json_decode($brevoResponse, true)
+    ]);
+}
     }
     else
     {

@@ -151,8 +151,7 @@ function openEchoPage(echo, updateHistory = true) {
 
 function renderEchoPage(echo, updateHistory) {
     if (updateHistory) {
-        const safeName = echo.name.toLowerCase().replace(/[\s\W]+/g, '_');
-        window.history.pushState({ module: 'echo_detail', echoData: echo }, "", "#echo_" + safeName);
+        window.history.pushState({ module: 'echo_detail', echoData: echo },"","#echo_" + echo.id);
     }
     
     const display = document.getElementById('module-display');

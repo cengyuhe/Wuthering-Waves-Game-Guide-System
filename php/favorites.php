@@ -26,13 +26,11 @@ if (!isset($_SESSION["user_id"])) {
 $user_id = $_SESSION["user_id"];
 $action = $_GET["action"] ?? "";
 
-// 1. 添加 / 取消收藏
 if ($action == "toggle") {
     $data = json_decode(file_get_contents("php://input"), true);
     $item_type = $data["item_type"];
     $item_id = $data["item_id"];
 
-    // 检查是否已经收藏
     $stmt = $conn->prepare("SELECT favorite_id FROM favorites WHERE user_id=? AND item_type=? AND item_id=?");
     $stmt->bind_param("isi", $user_id, $item_type, $item_id);
     $stmt->execute();
@@ -51,7 +49,6 @@ if ($action == "toggle") {
     exit;
 }
 
-// 2. 检查某个物品是否被当前用户收藏了 (用于进入详情页时自动变红)
 if ($action == "check") {
     $item_type = $_GET["item_type"];
     $item_id = $_GET["item_id"];
@@ -64,7 +61,6 @@ if ($action == "check") {
     exit;
 }
 
-// 3. 获取用户所有的收藏 (用于 My Favorites 页面)
 if ($action == "get_all") {
     $stmt = $conn->prepare("SELECT item_type, item_id FROM favorites WHERE user_id=? ORDER BY favorite_id DESC");
     $stmt->bind_param("i", $user_id);

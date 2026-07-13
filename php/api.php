@@ -118,5 +118,56 @@ if ($action == 'get_echoes') {
     exit;
 }
 
+if ($action == 'get_character') {
+
+    $id = intval($_GET['id']);
+
+    $sql = "SELECT * FROM characters WHERE id = $id LIMIT 1";
+
+    $result = $conn->query($sql);
+
+    if ($result && $result->num_rows > 0) {
+        echo json_encode($result->fetch_assoc());
+    } else {
+        echo json_encode(null);
+    }
+
+    exit;
+}
+
+if ($action == 'get_weapon') {
+
+    $id = intval($_GET['id']);
+
+    $sql = "SELECT * FROM weapons WHERE id = $id LIMIT 1";
+
+    $result = $conn->query($sql);
+
+    if ($result && $result->num_rows > 0) {
+        echo json_encode($result->fetch_assoc());
+    } else {
+        echo json_encode(null);
+    }
+
+    exit;
+}
+
+if ($action == 'get_echo') {
+
+    $id = intval($_GET['id']);
+
+    $sql = "SELECT * FROM echoes WHERE id = $id LIMIT 1";
+
+    $result = $conn->query($sql);
+
+    if ($result && $result->num_rows > 0) {
+        echo json_encode($result->fetch_assoc());
+    } else {
+        echo json_encode(null);
+    }
+
+    exit;
+}
+
 $conn->close();
 ?>

@@ -23,9 +23,9 @@ async function requestReset(event)
         );
 
     const result =
-        await response.json();
+    await response.json();
 
-   if(result.success)
+if(result.success)
 {
     localStorage.setItem(
         "reset_email",
@@ -41,8 +41,8 @@ async function requestReset(event)
 }
 else
 {
-    alert(
-        "Email not found."
-    );
+    console.log(result);
+
+    alert(JSON.stringify(result, null, 2));
 }
 }
