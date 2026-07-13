@@ -50,7 +50,7 @@ wuthering_waves_db.sql
 
 7. Open browser
 
-http://localhost/Wuthering-Waves-Guide-System/
+[http://localhost/Wuthering-Waves-Guide-System/](http://localhost/FYP2/html/)
 
 ------------------------------------------------
 
